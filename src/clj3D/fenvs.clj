@@ -41,7 +41,7 @@
     (.getResource (.getContextClassLoader (Thread/currentThread))
         "com/jme3/asset/Desktop.cfg")))
 
-(def default-material
+(defn default-material []
   (doto (Material. asset-manager "Common/MatDefs/Light/Lighting.j3md")
     (.setBoolean "UseMaterialColors" true)
     (.setColor "Ambient"  (get colors :black))
@@ -59,5 +59,5 @@
   [side]
   (let* [box (Box. (Vector3f. 0 0 0) side side side)
          cube (Geometry. "cube" box)]
-    (.setMaterial cube default-material)
+    (.setMaterial cube (default-material))
     cube))
