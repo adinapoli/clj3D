@@ -1,84 +1,4 @@
 
-import time
-start=time.clock()
-print "Evaluating fenvs.py.."
-
-#default values (see PlasmConfig)
-DEFAULT_TOLERANCE=1e-6
-DEFAULT_MAX_NUM_SPLIT=10
-
-import sys,types,math
-
-# set this to True if you want to do a self test
-self_test=False
-
-print __file__
-
-from pyplasm.xge import *
-
-	
-#===================================================== 
-# Configuration for plasm
-#
-# EXAMPLE:
-# plasm_config.push(<tolerance you want to use::float>)
-# <your code>
-# plasm_config.pop()
-#
-#===================================================== 
-class PlasmConfig:
-
-	def __init__(self):
-		self.stack=[]
-		self.push(DEFAULT_TOLERANCE,DEFAULT_MAX_NUM_SPLIT)
-
-	# return actual tolerance
-	def tolerance(self):
-		return self.stack[-1].tolerance
-
-	# return actual num try
-	def maxnumtry(self):
-		return self.stack[-1].maxnumtry
-
-	# push a config
-	def push(self,tolerance,maxnumtry=-1):
-		class T:pass
-		obj=T()
-		obj.tolerance=tolerance
-		obj.maxnumtry=maxnumtry if maxnumtry>=0 else self.maxnumtry()
-		self.stack+=[obj]
-
-	# pop a config
-	def pop(self):
-		if len(self.stack)==1:
-			raise Exception("Cannot pop the default configuration")
-		self.stack=self.stack[:-1]
-
-plasm_config=PlasmConfig()
-
-
-#===================================================== 
-# Every
-#===================================================== 
-def every (predicate, iterable):
-    for x in iterable:
-        if not(predicate(x)):return False
-    return True
-
-
-
-if self_test: 
-	assert(every(lambda x: x>=0,[1,2,3,4]) and not every(lambda x: x>0,[1,-2,3,4]))
-
-#===================================================== 
-# from http://www.daniweb.com/code/snippet564.html
-#===================================================== 
-def curry(fn, *cargs, **ckwargs):
-    def call_fn(*fargs, **fkwargs):
-        d = ckwargs.copy()
-        d.update(fkwargs)
-        return fn(*(cargs + fargs), **d)
-    return call_fn
 
 def C (fun):
     return lambda arg1: lambda arg2: fun([arg1,arg2])
@@ -88,18 +8,17 @@ def C (fun):
 # Define CONStants
 #===================================================== 
 PI = math.pi
-SIN = math.sin
 SINH = math.sinh
 ASIN = math.asin
-COS = math.cos
+
 COSH = math.cosh
 ACOS = math.acos
-TAN = math.tan
 
 TANH = math.tanh
-ATAN = math.atan
+
 ATAN2 = math.atan2
-SQRT = math.sqrt
+
+
 EXP = math.exp
 LN = math.log
 CEIL = math.ceil
@@ -107,8 +26,7 @@ FLOOR = math.floor
 ABS = abs
 CHAR = chr
 ORD = ord
-FALSE = False
-TRUE = True
+
 
 
 def ATAN2(l): 

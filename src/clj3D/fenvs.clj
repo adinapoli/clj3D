@@ -1,11 +1,16 @@
 (ns clj3D.fenvs
   (:gen-class)
+  (:use [clojure.contrib.generic.math-functions])
   (:import (com.jme3.math Vector3f ColorRGBA))
   (:import (com.jme3.asset AssetManager))
   (:import (com.jme3.system JmeSystem))
   (:import (com.jme3.material Material))
   (:import (com.jme3.scene.shape Box))
   (:import (com.jme3.scene Geometry)))
+
+
+(defn curry [func arg]
+  (partial func arg))
 
 
 (def colors
