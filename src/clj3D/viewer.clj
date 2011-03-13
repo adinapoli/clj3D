@@ -1,17 +1,17 @@
 (ns clj3D.viewer
   (:gen-class)
   (:use (clj3D fenvs))
-  (:require [incanter.core])
-  (:require [incanter.stats])
+  (:use [incanter core charts stats])
   (import (clj3D.ObjectViewer))
   (:import (java.awt Dimension Toolkit))
   (:import (com.jme3.system AppSettings))
-  (:import (com.jme3.scene Node)))
+  (:import (com.jme3.scene Node Spatial)))
 
 
-(defn view
-  "Display on the screen the geometry or node given in input."
-  [object]
+;; Display on the screen the geometry or node given in input.
+;; I have used the defmethod awesomeness to extend the existing
+;; view function, inherited by Incanter
+(defmethod view Spatial [object]
   (let [geometry-node (Node.)
         viewer (clj3D.ObjectViewer.)
         settings (AppSettings. true)
