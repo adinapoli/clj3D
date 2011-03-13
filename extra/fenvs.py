@@ -6,24 +6,9 @@ def C (fun):
 
 #===================================================== 
 # Define CONStants
-#===================================================== 
-PI = math.pi
-SINH = math.sinh
-ASIN = math.asin
-
-COSH = math.cosh
-ACOS = math.acos
-
-TANH = math.tanh
-
-ATAN2 = math.atan2
+#=====================================================
 
 
-EXP = math.exp
-LN = math.log
-CEIL = math.ceil
-FLOOR = math.floor
-ABS = abs
 CHAR = chr
 ORD = ord
 

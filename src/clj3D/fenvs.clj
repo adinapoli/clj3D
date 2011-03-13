@@ -13,6 +13,46 @@
   (partial func arg))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Math functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def PI (Math/PI))
+
+
+(defn sinh
+  "Returns the hyperbolic sin of the argument x."
+  [x] (Math/sinh x))
+
+
+(defn cosh
+  "Returns the hyperbolic cos of the argument x."
+  [x] (Math/cosh x))
+
+(defn tanh
+  "Returns the hyperbolic tan of the argument x."
+  [x] (Math/tanh x))
+
+
+(defn ln
+  "Simple wrapper. Mantained for compatibility with Plasm."
+  [x] (log x))
+
+(defn chr
+  "Coerce an int into the correspondent char value."
+  [x]
+  (if (integer? x)
+    (char x)
+    (throw (ClassCastException. "Argument is not a valid integer."))))
+
+(defn ord
+  "Coerce a character into the correspondent int value."
+  [x]
+  (if (char? x)
+    (int x)
+    (throw (ClassCastException. "Argument is not a valid character."))))
+
+
 (def colors
   { :gray (ColorRGBA/Gray),
     :green (ColorRGBA/Green),
@@ -56,7 +96,7 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; PRIMITIVES                                                                 ;;
+;; PRIMITIVES
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn cube
