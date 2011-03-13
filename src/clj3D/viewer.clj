@@ -1,6 +1,8 @@
 (ns clj3D.viewer
   (:gen-class)
   (:use (clj3D fenvs))
+  (:require [incanter.core])
+  (:require [incanter.stats])
   (import (clj3D.ObjectViewer))
   (:import (java.awt Dimension Toolkit))
   (:import (com.jme3.system AppSettings))

@@ -6,7 +6,8 @@
   (:import (com.jme3.system JmeSystem))
   (:import (com.jme3.material Material))
   (:import (com.jme3.scene.shape Box))
-  (:import (com.jme3.scene Geometry)))
+  (:import (com.jme3.scene Geometry))
+  (:use [incanter.core :only [matrix]]))
 
 
 ;;For performance tweaking. Just ignore this.
@@ -38,9 +39,7 @@
   [x] (Math/tanh x))
 
 
-(defn ln
-  "Simple wrapper. Mantained for compatibility with Plasm."
-  [x] (log x))
+(def ln log)
 
 (defn chr
   "Coerce an int into the correspondent char value."
