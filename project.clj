@@ -16,4 +16,5 @@
                  [org.clojars.charles-stain/nifty-default-controls "1.3"]
                  [org.clojars.charles-stain/stack-alloc "3.0"]
                  [org.clojars.charles-stain/xmlpull-xpp3 "1.1.4c"]]
-  :dev-dependencies [[swank-clojure "1.2.0-SNAPSHOT"]])
+  :dev-dependencies [[swank-clojure "1.2.0-SNAPSHOT"]]
+  :warn-on-reflection true)

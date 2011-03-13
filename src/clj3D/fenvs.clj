@@ -9,6 +9,10 @@
   (:import (com.jme3.scene Geometry)))
 
 
+;;For performance tweaking. Just ignore this.
+(set! *warn-on-reflection* true)
+
+
 (defn curry [func arg]
   (partial func arg))
 
@@ -74,7 +78,7 @@
 
 (defn color
   "Change the color of the shape, then return the shape itself."
-  [color-symbol object]
+  [color-symbol ^Geometry object]
   (let [material (.getMaterial object)]
     (.setColor material "Ambient" (get colors color-symbol default-color))
     (.setColor material "Diffuse" (get colors color-symbol default-color))

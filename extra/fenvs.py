@@ -1,25 +1,7 @@
 
 
 def C (fun):
-    return lambda arg1: lambda arg2: fun([arg1,arg2])
-
-
-#===================================================== 
-# Define CONStants
-#=====================================================
-
-
-CHAR = chr
-ORD = ord
-
-
-
-def ATAN2(l): 
-	return math.atan2(l[1],l[0])
-
-
-def MOD(l): 
-	return float(l[0] % l[1])
+    return lambda arg1: lambda arg2: fun([arg1,arg2]
 
 # ===================================================== 
 # CAT
