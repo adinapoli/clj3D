@@ -32,6 +32,7 @@
 
 (pull cl-math (sin asin cos acos tan atan atan2 abs ceil floor sqrt exp))
 (pull ictr-core (matrix))
+(defalias inv ictr-core/solve)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -89,7 +90,27 @@
   [& args] (reduce into (first args) (rest args)))
 
 
-(def colors
+(defn id
+  "IDentity function. For any argument returns the argument"
+  [anyvalue] anyvalue)
+
+
+(defn k
+  "FL CONStant Function.
+  Simple usage:
+  (k 1) -> returns a partial function
+  ((k 1) 2) -> 1
+  (k 1 2) -> 1"
+  ([k1] (partial (fn [x y] x) k1))
+  ([k1 k2] k1))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Graphics stuff.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(def ^{:private true} colors
   { :gray (ColorRGBA/Gray),
     :green (ColorRGBA/Green),
     :black (ColorRGBA/Black),
@@ -105,7 +126,7 @@
     :yellow (ColorRGBA/Yellow)})
 
 
-(def default-color (ColorRGBA/Red))
+(def ^{:private true} default-color (ColorRGBA/Red))
 
 
 (defn color
@@ -117,12 +138,12 @@
     object))
 
 
-(def asset-manager
+(def ^{:private true} asset-manager
   (JmeSystem/newAssetManager
     (.getResource (.getContextClassLoader (Thread/currentThread))
         "com/jme3/asset/Desktop.cfg")))
 
-(defn default-material []
+(defn- default-material []
   (doto (Material. asset-manager "Common/MatDefs/Light/Lighting.j3md")
     (.setBoolean "UseMaterialColors" true)
     (.setColor "Ambient"  (get colors :black))

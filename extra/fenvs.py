@@ -1,41 +1,11 @@
 
 
 def C (fun):
-    return lambda arg1: lambda arg2: fun([arg1,arg2]
+    return lambda arg1: lambda arg2: fun([arg1,arg2])
 
 
 
-
-# ===================================================== 
-# Matrix inverse
-# ===================================================== 
-
-def INV (mat):
-    dim=len(mat)
-    mat=Matf(CAT(mat)).invert()
-    return [ [mat.get(i,j) for j in range(0,dim) ] for i in range(0,dim) ]
-
-
-
-if self_test: 
-	assert((Matf([1,2,3,4])*Matf(CAT(INV([[1,2],[3,4]]))) ).almostIdentity(0.01))
-
-# ===================================================== 
-# AND
-# =====================================================
- 
-def AND (list):
-    """ and of all arguments in a list """
-    for i in list:
-        if not(i):return False
-    return True
-
-
-
-if self_test: 
-	assert(AND([True,True])==True and AND([True,False])==False)
-
-#===================================================== 
+#=====================================================
 # hpc type
 #===================================================== 
 
@@ -50,16 +20,6 @@ def ISPOL (obj):
 if self_test: 
 	assert(ISPOL(Plasm.cube(2))==True)
 
-#===================================================== 
-# FL IDentity Function 
-#===================================================== 
-
-def ID (anyValue):
-    """IDentity function. For any argument retruns the argument"""
-    return anyValue
-
-if self_test: 
-	assert(ID(True)==True)
 
 
 #===================================================== 
