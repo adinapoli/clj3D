@@ -3,14 +3,6 @@
 def C (fun):
     return lambda arg1: lambda arg2: fun([arg1,arg2]
 
-# ===================================================== 
-# CAT
-# =====================================================
-
-def CAT (args):  return reduce(lambda x, y: x + y, args)
-
-if self_test: 
-	assert(CAT([[1,2],[3,4]])==[1,2,3,4])
 
 
 
