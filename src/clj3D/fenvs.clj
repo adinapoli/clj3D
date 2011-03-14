@@ -9,8 +9,9 @@
     [com.jme3.asset AssetManager]
     [com.jme3.system JmeSystem]
     [com.jme3.material Material]
-    [com.jme3.scene.shape Box]
-    [com.jme3.scene Geometry]))
+    [com.jme3.scene.shape Box Line]
+    [com.jme3.scene Geometry Mesh]
+    [jme3tools.optimize GeometryBatchFactory]))
 
 
 ;;For performance tweaking. Just ignore this.
@@ -105,6 +106,9 @@
   ([k1 k2] k1))
 
 
+(def tt (k true))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Graphics stuff.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -143,6 +147,11 @@
     (.getResource (.getContextClassLoader (Thread/currentThread))
         "com/jme3/asset/Desktop.cfg")))
 
+
+(def ^{:private true} batch-factory
+  (GeometryBatchFactory.))
+
+
 (defn- default-material []
   (doto (Material. asset-manager "Common/MatDefs/Light/Lighting.j3md")
     (.setBoolean "UseMaterialColors" true)
@@ -152,14 +161,50 @@
     (.setFloat "Shininess" 20)))
 
 
+;; i.e the original STRUCT from Plasm
+(defn struct2
+  "Merge all the input given meshs into a single one."
+  [& meshs]
+  (let [out-mesh (Mesh.)]
+    (.mergeGeometries batch-factory meshs out-mesh)
+    out-mesh))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PRIMITIVES
+;; NOTE: JMonkey uses a different mapping between coordinates and the
+;; coordinate plane itself.
+;; In plasm: [x y z]
+;; In jmonkey: [x z y]
+;; It will be used the jmonkey convention, since it will be simpler to port
+;; the codes and it's more natural and intuitive (z is the depthness, y the
+;; height).
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(defn cuboid
+  "Returns a new x*y*z cuboid in (0,0,0)"
+  [x y z]
+  (let* [box (Box. (Vector3f. 0 0 0) x y z)
+         cuboid (Geometry. "cuboid" box)]
+    (.setMaterial cuboid (default-material))
+    cuboid))
+
 
 (defn cube
   "Returns a new n*n*n cube in (0,0,0)"
   [side]
-  (let* [box (Box. (Vector3f. 0 0 0) side side side)
-         cube (Geometry. "cube" box)]
-    (.setMaterial cube (default-material))
-    cube))
+  (cuboid side side side))
+
+
+(defn hexaedron []
+  (cube 1))
+
+
+(defn line
+  "New in clj3D. Draw a simple line from start to end"
+  ([[x1 y1 z1] [x2 y2 z2]]
+  (let* [line-mesh (Line. (Vector3f. x1 y1 z1) (Vector3f. x2 y2 z2))
+         line-geom (Geometry. "line" line-mesh)]
+    (.setMaterial line-geom (default-material))
+    line-geom)))

@@ -22,20 +22,6 @@ if self_test:
 
 
 
-#===================================================== 
-# FL CONStant Function 
-#===================================================== 
-
-def K(AnyValue):
-    def K0 (obj): return AnyValue
-    return K0
-
-
-
-TT = K(TRUE)
-
-if self_test: 
-	assert(K(1)(2)==1)
 
 # ===================================================
 # DISTL
@@ -724,33 +710,9 @@ if self_test:
 	assert(CASE([[LT(0),K(-1)],[C(EQ)(0),K(0)],[GT(0),K(+1)]])(   0)==0)
 	assert(CASE([[LT(0),K(-1)],[C(EQ)(0),K(0)],[GT(0),K(+1)]])(10)==+1)
 
-# ===================================================
-# GEOMETRIC FUNCTION 
-# ===================================================
-
-def VIEW (obj,Background=True):
-	if self_test: Background=False
-	Plasm.View(obj,Background) 
-	return obj
 
 
-# ===================================================
-# CUBOID
-# ===================================================
 
-def CUBOID (sizes_list):
-    dim = len(sizes_list)
-    pol = Plasm.scale(Plasm.cube(dim), Vecf([0.0] + sizes_list))
-    return pol
-
-if self_test: 
-	assert(Plasm.limits(CUBOID([1,2,3]))==Boxf(Vecf(1,0,0,0),Vecf(1,1,2,3)))
-
-def CUBE (side):
-    return CUBOID([side, side, side])
-
-
-HEXAHEDRON=Plasm.cube(3,-1.0/math.sqrt(3.0),+1.0/math.sqrt(3.0))
 
 
 # ===================================================
