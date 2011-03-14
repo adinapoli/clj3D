@@ -1,26 +1,43 @@
 (ns clj3D.fenvs
-  (:gen-class)
-  (:use [clojure.contrib.generic.math-functions])
-  (:import (com.jme3.math Vector3f ColorRGBA))
-  (:import (com.jme3.asset AssetManager))
-  (:import (com.jme3.system JmeSystem))
-  (:import (com.jme3.material Material))
-  (:import (com.jme3.scene.shape Box))
-  (:import (com.jme3.scene Geometry))
-  (:use [incanter.core :only [matrix]]))
+   (:use
+    [clojure.contrib.def :only [defalias]])
+  (:require
+    [clojure.contrib.generic.math-functions :as cl-math]
+    [incanter.core :as ictr-core])
+  (:import
+    [com.jme3.math Vector3f ColorRGBA]
+    [com.jme3.asset AssetManager]
+    [com.jme3.system JmeSystem]
+    [com.jme3.material Material]
+    [com.jme3.scene.shape Box]
+    [com.jme3.scene Geometry]))
 
 
 ;;For performance tweaking. Just ignore this.
 (set! *warn-on-reflection* true)
 
 
-(defn curry [func arg]
-  (partial func arg))
+;; Expose some function into a namespace.
+;; http://stackoverflow.com/questions/4732134/can-i-refer-another-
+;;  namespace-and-expose-its-functions-as-public-for-the-current
+(defmacro pull [ns vlist]
+  `(do ~@(for [i vlist]
+           `(def ~i ~(symbol (str ns "/" i))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Imported functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(pull cl-math (sin asin cos acos tan atan atan2 abs ceil floor sqrt exp))
+(pull ictr-core (matrix))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Math functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 (def PI (Math/PI))
 
@@ -39,7 +56,8 @@
   [x] (Math/tanh x))
 
 
-(def ln log)
+(def ln cl-math/log)
+
 
 (defn chr
   "Coerce an int into the correspondent char value."
@@ -54,6 +72,21 @@
   (if (char? x)
     (int x)
     (throw (ClassCastException. "Argument is not a valid character."))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Mixed PLASM functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(defn curry [func arg]
+  (partial func arg))
+
+
+(defn cat
+  "Concat the sequences give in input into a vector, for performance purpose.
+  Cat-ing list and/or vector will return always a vector."
+  [& args] (reduce into (first args) (rest args)))
 
 
 (def colors

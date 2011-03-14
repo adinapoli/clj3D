@@ -18,3 +18,14 @@
   (is (thrown? ClassCastException (ord "a")))
   (is (= \c (chr (ord \c))))
   (is (= 99 (ord (chr 99)))))
+
+
+(deftest cat-test
+  (is (= nil (cat)))
+  (is (= [] (cat [])))
+  (is (= [1 2 3]) (cat [1 2 3]))
+  (is (= [1 2 3 4 5 6]) (cat [1 2 3] [4 5 6]))
+  (is (= [1 2 3 4]) (cat [1 2] '(3 4)))
+  (is (= [1 2 3 4 5 6]) (cat [1 2] '(3 4) [5 6]))
+  (is (= [1 2 3 4 8 8]) (cat [1 2] '(3 4) '(8 8)))
+  (is (= [1 2 3 4 8 8 9 8]) (cat [1 2] '(3 4) [8 8] '(9 8))))

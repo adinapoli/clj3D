@@ -1,8 +1,9 @@
-(defproject clj3D "1.0.0-SNAPSHOT"
+(defproject clj3D "0.0.1-SNAPSHOT"
   :description "FIXME: write"
   
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]
+                 [potemkin "0.1.0"]
                  [org.clojars.charles-stain/jme "3.0-alpha3"]
                  [org.clojars.charles-stain/eventbus "1.4"]
                  [org.clojars.charles-stain/jbullet "3.0"]
@@ -19,4 +20,6 @@
                  [incanter/incanter-core "1.2.3"]
                  [incanter/incanter-charts "1.2.3"]]
   :dev-dependencies [[swank-clojure "1.2.0-SNAPSHOT"]]
-  :warn-on-reflection true)
+  :source-path "src"
+  :java-source-path "java"
+  )

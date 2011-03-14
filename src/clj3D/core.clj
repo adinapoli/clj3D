@@ -1,6 +1,5 @@
 (ns clj3D.core
-  (:gen-class)
-  (:use [clj3D fenvs viewer]))
+  (:gen-class :main true))
 
 
-(view (color :green (cube 1)))
+;;(view (color :green (cube 1)))

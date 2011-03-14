@@ -1,11 +1,23 @@
 (ns clj3D.viewer
-  (:gen-class)
-  (:use (clj3D fenvs))
-  (:use [incanter core charts stats])
-  (import (clj3D.ObjectViewer))
-  (:import (java.awt Dimension Toolkit))
-  (:import (com.jme3.system AppSettings))
-  (:import (com.jme3.scene Node Spatial)))
+  (:use
+    [clj3D.fenvs :only [pull]]
+    [clojure.contrib.def :only [defalias]])
+  (:require
+    [incanter.core :as ictr-core]
+    [incanter.charts :as ictr-charts])
+  (:import
+    (clj3D ObjectViewer)
+    (java.awt Dimension Toolkit)
+    (com.jme3.system AppSettings)
+    (com.jme3.scene Node Spatial Geometry)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Imported functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(pull ictr-core (view))
 
 
 ;; Display on the screen the geometry or node given in input.
@@ -17,13 +29,13 @@
         settings (AppSettings. true)
         screen (.getScreenSize (Toolkit/getDefaultToolkit))]
 
-    (.setResolution settings
-      (- (.width screen) 20)
-      (- (.height screen) 50))
-    (.setTitle settings "CLJ-3D")
-    (.setRenderer settings (AppSettings/LWJGL_OPENGL2))
-    (.setBitsPerPixel settings 32)
-    (.setVSync settings true)
+    (doto settings
+      (.setResolution (- (.width screen) 20) (- (.height screen) 50))
+      (.setTitle "CLJ-3D")
+      (.setRenderer (AppSettings/LWJGL_OPENGL2))
+      (.setBitsPerPixel 32)
+      (.setVSync true))
+
     (.setSettings viewer settings)
     (.attachChild geometry-node object)
     (.view viewer geometry-node)))
