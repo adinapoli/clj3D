@@ -9,7 +9,7 @@
     [com.jme3.asset AssetManager]
     [com.jme3.system JmeSystem]
     [com.jme3.material Material]
-    [com.jme3.scene.shape Box Line]
+    [com.jme3.scene.shape Box Line Sphere]
     [com.jme3.scene Geometry Mesh]
     [jme3tools.optimize GeometryBatchFactory]))
 
@@ -148,17 +148,13 @@
         "com/jme3/asset/Desktop.cfg")))
 
 
-(def ^{:private true} batch-factory
-  (GeometryBatchFactory.))
-
-
 (defn- default-material []
   (doto (Material. asset-manager "Common/MatDefs/Light/Lighting.j3md")
     (.setBoolean "UseMaterialColors" true)
     (.setColor "Ambient"  (get colors :black))
     (.setColor "Diffuse" default-color)
     (.setColor "Specular" (get colors :white))
-    (.setFloat "Shininess" 20)))
+    (.setFloat "Shininess" 10)))
 
 
 ;; i.e the original STRUCT from Plasm
@@ -166,8 +162,10 @@
   "Merge all the input given meshs into a single one."
   [& meshs]
   (let [out-mesh (Mesh.)]
-    (.mergeGeometries batch-factory meshs out-mesh)
-    out-mesh))
+    (GeometryBatchFactory/mergeGeometries meshs out-mesh)
+    (let [result (Geometry. "structured" out-mesh)]
+      (.setMaterial result (default-material))
+      result)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -208,3 +206,21 @@
          line-geom (Geometry. "line" line-mesh)]
     (.setMaterial line-geom (default-material))
     line-geom)))
+
+
+(defn sphere
+  "Returns a new sphere in (0,0,0).
+  (sphere radius) -> returns a sphere of the given radius
+  (sphere x y radius) -> returns a sphere composed by x and
+  y segment, of the given radius."
+  ([radius]
+  (let* [sphere-mesh (Sphere. 50 50 radius)
+         sphere (Geometry. "sphere" sphere-mesh)]
+    (.setMaterial sphere (default-material))
+    sphere))
+
+  ([radius z-seg r-seg]
+  (let* [sphere-mesh (Sphere. z-seg r-seg radius)
+         sphere (Geometry. "sphere" sphere-mesh)]
+    (.setMaterial sphere (default-material))
+    sphere)))
