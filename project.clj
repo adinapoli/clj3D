@@ -18,8 +18,8 @@
                  [org.clojars.charles-stain/stack-alloc "3.0"]
                  [org.clojars.charles-stain/xmlpull-xpp3 "1.1.4c"]
                  [incanter/incanter-core "1.2.3"]
-                 [incanter/incanter-charts "1.2.3"]]
+                 [incanter/incanter-charts "1.2.3"]
+                 [criterium "0.0.1-SNAPSHOT"]]
   :dev-dependencies [[swank-clojure "1.2.0-SNAPSHOT"]]
   :source-path "src"
-  :java-source-path "java"
-  )
+  :java-source-path "java")

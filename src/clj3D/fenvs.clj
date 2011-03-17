@@ -109,6 +109,14 @@
 (def tt (k true))
 
 
+(defn distr
+  "Very naive implementation"
+  [elem seq] (vec (map #(conj %1 elem) seq)))
+
+(defn distl
+  "Very naive implementation"
+  [elem seq] (map #(into [elem] %1) seq))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Graphics stuff.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -163,9 +171,8 @@
   [& meshs]
   (let [out-mesh (Mesh.)]
     (GeometryBatchFactory/mergeGeometries meshs out-mesh)
-    (let [result (Geometry. "structured" out-mesh)]
-      (.setMaterial result (default-material))
-      result)))
+    (doto (Geometry. "structured" out-mesh)
+      (.setMaterial (default-material)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
