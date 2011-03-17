@@ -24,37 +24,6 @@ if self_test:
 
 
 # ===================================================
-# Composition
-# ===================================================
-
-def COMP(Funs):
-   def compose(f,g):
-      def h(x): return f(g(x))
-      return h
-   return reduce(compose,Funs)
-
-
-
-if self_test: 
-	assert(COMP([lambda x: x+[3],lambda x: x+[2],lambda x: x+[1]])([0])==[0,1,2,3])
-
-
-# ===================================================
-# Apply-to-all 
-# ===================================================
-
-def AA (f):
-    def AA0 (args): return map(f, args)
-    return AA0
-
-
-
-if self_test: 
-	assert(AA(lambda x: x*2)([1,2,3])==[2,4,6])
-
-
-
-# ===================================================
 # PLASM  Comparison operators 
 # ===================================================
 

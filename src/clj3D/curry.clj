@@ -35,8 +35,9 @@
   "Like the original defn-decorated, but the number of argument to curry on
   is implicit."
   [fn-name & defn-stuff]
-  (let [number-of-args (count (first defn-stuff))]
-    `(defn-decorated ~fn-name [(curry* ~number-of-args)] ~@defn-stuff)))
+  (let [[fst snd] (take 2 defn-stuff)
+         num-of-args (if (string? fst) (count snd) (count fst))]
+    `(defn-decorated ~fn-name [(curry* ~num-of-args)] ~@defn-stuff)))
 
 
 (defn curry**
@@ -52,7 +53,7 @@
 (def curry* (curry** 2 curry**))
 
 (defn-decorated
-  curry
+  curry-on
   [(curry* 2)]
   "higher order function that enables automatic curying as in haskel, scheme"
   {:author "Robert McIntyre"}
@@ -64,7 +65,7 @@
 
 (defn-decorated
   demo
-  [memoize (curry 3)]
+  [memoize (curry-on 3)]
   "I like the vector of unitarty higher order transforms ---
    sort of like a list of modifiers on a magic(tm) card.
    This function has flying, resistance to black, etc :)"

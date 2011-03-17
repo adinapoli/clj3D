@@ -21,7 +21,7 @@
 
 
 (deftest cat-test
-  (is (= nil (cat)))
+  (is (empty? (cat)))
   (is (= [] (cat [])))
   (is (= [1 2 3]) (cat [1 2 3]))
   (is (= [1 2 3 4 5 6]) (cat [1 2 3] [4 5 6]))
@@ -40,7 +40,9 @@
 (deftest k-test
   (is (function? (k 1)))
   (is (= 4 (k 4 2)))
-  (is (= ((k 2) 3) (k 2 3))))
+  (is (= ((k 2) 3) (k 2 3)))
+  (is (true? (tt nil)))
+  (is (true? (tt false))))
 
 
 (deftest distl-test
@@ -51,3 +53,9 @@
 (deftest distr-test
   (is (= [[1 9] [2 2 9] [3 9]] (distr 9 [[1] [2 2] [3]])))
   (is (= [[0 0 9] [1 1 9] [2 2 9]] (distr 9 [[0 0] [1 1] [2 2]]))))
+
+
+(deftest aa-test
+  (is (function? (aa #(* %1 %1))))
+  (is (= [1 4 9] ((aa #(* %1 %1)) [1 2 3])))
+  (is (= [1 4 9] (aa #(* %1 %1) [1 2 3]))))

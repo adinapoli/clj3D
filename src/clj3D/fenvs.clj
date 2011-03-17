@@ -1,5 +1,6 @@
 (ns clj3D.fenvs
-   (:use
+  (:use
+    [clj3D curry]
     [clojure.contrib.def :only [defalias]])
   (:require
     [clojure.contrib.generic.math-functions :as cl-math]
@@ -33,7 +34,7 @@
 
 (pull cl-math (sin asin cos acos tan atan atan2 abs ceil floor sqrt exp))
 (pull ictr-core (matrix))
-(defalias inv ictr-core/solve)
+(def inv ictr-core/solve)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -85,10 +86,7 @@
   (partial func arg))
 
 
-(defn cat
-  "Concat the sequences give in input into a vector, for performance purpose.
-  Cat-ing list and/or vector will return always a vector."
-  [& args] (reduce into (first args) (rest args)))
+(def cat concat)
 
 
 (defn id
@@ -96,14 +94,13 @@
   [anyvalue] anyvalue)
 
 
-(defn k
+(defhigh k
   "FL CONStant Function.
   Simple usage:
   (k 1) -> returns a partial function
   ((k 1) 2) -> 1
   (k 1 2) -> 1"
-  ([k1] (partial (fn [x y] x) k1))
-  ([k1 k2] k1))
+  [k1 k2] k1)
 
 
 (def tt (k true))
@@ -111,11 +108,16 @@
 
 (defn distr
   "Very naive implementation"
-  [elem seq] (vec (map #(conj %1 elem) seq)))
+  [elem seq] (map #(concat %1 [elem]) seq))
 
 (defn distl
   "Very naive implementation"
-  [elem seq] (map #(into [elem] %1) seq))
+  [elem seq] (map #(cons elem %1) seq))
+
+
+(defhigh aa
+  "Like (map f seq)."
+  [f seq] (map f seq))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Graphics stuff.
@@ -209,7 +211,7 @@
 (defn line
   "New in clj3D. Draw a simple line from start to end"
   ([[x1 y1 z1] [x2 y2 z2]]
-  (let* [line-mesh (Line. (Vector3f. x1 y1 z1) (Vector3f. x2 y2 z2))
+  (let [line-mesh (Line. (Vector3f. x1 y1 z1) (Vector3f. x2 y2 z2))
          line-geom (Geometry. "line" line-mesh)]
     (.setMaterial line-geom (default-material))
     line-geom)))
@@ -221,13 +223,13 @@
   (sphere x y radius) -> returns a sphere composed by x and
   y segment, of the given radius."
   ([radius]
-  (let* [sphere-mesh (Sphere. 50 50 radius)
+  (let [sphere-mesh (Sphere. 50 50 radius)
          sphere (Geometry. "sphere" sphere-mesh)]
     (.setMaterial sphere (default-material))
     sphere))
 
   ([radius z-seg r-seg]
-  (let* [sphere-mesh (Sphere. z-seg r-seg radius)
+  (let [sphere-mesh (Sphere. z-seg r-seg radius)
          sphere (Geometry. "sphere" sphere-mesh)]
     (.setMaterial sphere (default-material))
     sphere)))
