@@ -1,5 +1,6 @@
 (ns clj3D.fenvs
   (:use
+    [matchure]
     [clj3D curry]
     [clojure.contrib.def :only [defalias]])
   (:require
@@ -140,7 +141,7 @@
     :yellow (ColorRGBA/Yellow)})
 
 
-(def ^{:private true} default-color (ColorRGBA/Red))
+(def ^{:private true} default-color (ColorRGBA/LightGray))
 
 
 (defn color
@@ -177,6 +178,29 @@
       (.setMaterial (default-material)))))
 
 
+(defn jvector
+  "Returns a Vector3f given values and axis"
+  [axis value]
+  (cond-match
+    
+    [java.lang.Integer axis]
+    (doto (Vector3f.)
+      (.set (dec axis) value))
+
+    [clojure.lang.IPersistentCollection axis]
+    (let [result (Vector3f.)]
+      (for [[i v] (map vector axis value)] (.set result (dec i) v))
+      result)
+
+    [? axis] (throw (IllegalArgumentException. "Invalid input for jvector"))))
+
+
+(defhigh t
+  "Translate function."
+  [axis values]
+  (println "foo"))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PRIMITIVES
 ;; NOTE: JMonkey uses a different mapping between coordinates and the
@@ -190,22 +214,22 @@
 
 
 (defn cuboid
-  "Returns a new x*y*z cuboid in (0,0,0)"
+  "Returns a new x*y*z cuboid with bottom-left corner in (0,0,0)"
   [x y z]
-  (let* [box (Box. (Vector3f. 0 0 0) x y z)
-         cuboid (Geometry. "cuboid" box)]
+  (let [[px py pz] (map #(/ %1 2.0) [x y z])
+        box (Box. (Vector3f. px py pz) px py pz)
+        cuboid (Geometry. "cuboid" box)]
     (.setMaterial cuboid (default-material))
     cuboid))
 
 
 (defn cube
-  "Returns a new n*n*n cube in (0,0,0)"
+  "Returns a new n*n*n cube with bottom-left corner in (0,0,0)"
   [side]
   (cuboid side side side))
 
 
-(defn hexaedron []
-  (cube 1))
+(defn hexaedron [] (cube 1))
 
 
 (defn line

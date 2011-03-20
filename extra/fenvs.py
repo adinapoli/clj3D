@@ -64,35 +64,6 @@ def SMALLER (args):
 	return A if A<=B else B
 
 
-# ===================================================
-# FILTER
-# ===================================================
-
-def FILTER(predicate):
-	def FILTER0(sequence):
-		ret=[]
-		for item in sequence:
-			if predicate(item): ret+=[item]
-		return ret
-	return FILTER0
-
-if self_test:
-	assert FILTER(LE(0))([-1,0,1,2,3,4])==[-1,0]
-	assert FILTER(GE(0))([-1,0,1,2,3,4])==[0,1,2,3,4]
-
-
-# ===================================================
-# Apply 
-# ===================================================
-
-def APPLY(args):
-    f,x = args
-    return apply(f,[x])
-
-
-
-if self_test: 
-	assert(APPLY([lambda x:x*2,2])==4)
 
 # ===================================================
 # INSR

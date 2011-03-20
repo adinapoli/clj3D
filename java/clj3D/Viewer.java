@@ -39,14 +39,17 @@ import com.jme3.input.FlyByCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.light.*;
+import com.jme3.light.PointLight;
+import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial.CullHint;
+import com.jme3.scene.shape.Line;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.system.JmeSystem;
@@ -205,6 +208,43 @@ public abstract class Viewer extends Application {
         statsView.setLocalTranslation(0, fpsText.getLineHeight(), 0);
         guiNode.attachChild(statsView);
     }
+    
+    
+    public void createAxis(){
+        	Line x = new Line(new Vector3f(0,0,0), new Vector3f(1.0f,0,0));
+            Line y = new Line(new Vector3f(0,0,0), new Vector3f(0,1.0f,0));
+            Line z = new Line(new Vector3f(0,0,0), new Vector3f(0,0,1.0f));
+
+            x.setLineWidth(3f);
+            y.setLineWidth(3f);
+            z.setLineWidth(3f);
+
+            Geometry xg = new Geometry("x axis", x);
+            Geometry yg = new Geometry("y axis", y);
+            Geometry zg = new Geometry("z axis", z);
+
+            xg.setIgnoreTransform(true);
+            yg.setIgnoreTransform(true);
+            zg.setIgnoreTransform(true);
+
+            Material mx = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            mx.setColor("Color", ColorRGBA.Red);
+
+            Material my = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            my.setColor("Color", ColorRGBA.Green);
+
+            Material mz = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            mz.setColor("Color", ColorRGBA.Blue);
+
+            xg.setMaterial(mx);
+            yg.setMaterial(my);
+            zg.setMaterial(mz);
+
+            rootNode.attachChild(xg);
+            rootNode.attachChild(yg);
+            rootNode.attachChild(zg);
+        }
+
 
     @Override
     public void initialize() {
@@ -212,10 +252,12 @@ public abstract class Viewer extends Application {
 
         guiNode.setQueueBucket(Bucket.Gui);
         guiNode.setCullHint(CullHint.Never);
-        loadFPSText();
-        loadStatsView();
+        //loadFPSText();
+        //loadStatsView();
         viewPort.attachScene(rootNode);
         guiViewPort.attachScene(guiNode);
+        createAxis();
+        cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 0.1f, 500f);
 
         if (inputManager != null) {
             flyCam = new FlyByCamera(cam);
@@ -226,11 +268,8 @@ public abstract class Viewer extends Application {
                 inputManager.addMapping("SIMPLEAPP_Exit", new KeyTrigger(KeyInput.KEY_ESCAPE));
             }
 
-            inputManager.addMapping("SIMPLEAPP_CameraPos", new KeyTrigger(KeyInput.KEY_C));
-            inputManager.addMapping("SIMPLEAPP_Memory", new KeyTrigger(KeyInput.KEY_M));
             inputManager.addMapping("SIMPLEAPP_ResetPos", new KeyTrigger(KeyInput.KEY_R));
-            inputManager.addListener(actionListener, "SIMPLEAPP_Exit",
-                    "SIMPLEAPP_CameraPos", "SIMPLEAPP_Memory", "SIMPLEAPP_ResetPos");
+            inputManager.addListener(actionListener, "SIMPLEAPP_Exit", "SIMPLEAPP_ResetPos");
         }
 
         cameraLight.setPosition(cam.getLocation());
@@ -253,7 +292,7 @@ public abstract class Viewer extends Application {
         secondCounter += timer.getTimePerFrame();
         int fps = (int) timer.getFrameRate();
         if (secondCounter >= 1.0f) {
-            fpsText.setText("Frames per second: " + fps);
+            //fpsText.setText("Frames per second: " + fps);
             secondCounter = 0.0f;
         }
 
