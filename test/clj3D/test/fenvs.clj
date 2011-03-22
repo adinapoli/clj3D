@@ -1,6 +1,12 @@
 (ns clj3D.test.fenvs
-  (:use [clj3D.fenvs] :reload)
-  (:use [clojure.test]))
+  (:use
+    [clj3D.fenvs]
+    [clojure.test]:reload)
+  (:import [com.jme3.math Vector3f]))
+
+
+;;Needed for private-function testing
+(def jvector (ns-resolve 'clj3D.fenvs 'jvector))
 
 
 (deftest curry-test
@@ -59,3 +65,16 @@
   (is (function? (aa #(* %1 %1))))
   (is (= [1 4 9] ((aa #(* %1 %1)) [1 2 3])))
   (is (= [1 4 9] (aa #(* %1 %1) [1 2 3]))))
+
+
+(deftest jvector-test
+  (is (= 3.0 (.getX ^Vector3f (jvector 1 3.0))))
+  (is (= 3.0 (.getX ^Vector3f (jvector [1] [3]))))
+  (let [v1 (jvector [1 3] [4 2])]
+    (is (= 4.0 (.getX ^Vector3f v1)))
+    (is (= 0.0 (.getY ^Vector3f v1)))
+    (is (= 2.0 (.getZ ^Vector3f v1))))
+  (let [v1 (jvector [1 2 3] [4 8 2])]
+    (is (= 4.0 (.getX ^Vector3f v1)))
+    (is (= 8.0 (.getY ^Vector3f v1)))
+    (is (= 2.0 (.getZ ^Vector3f v1)))))

@@ -7,7 +7,7 @@
     [clojure.contrib.generic.math-functions :as cl-math]
     [incanter.core :as ictr-core])
   (:import
-    [com.jme3.math Vector3f ColorRGBA]
+    [com.jme3.math Vector3f ColorRGBA Quaternion]
     [com.jme3.asset AssetManager]
     [com.jme3.system JmeSystem]
     [com.jme3.material Material]
@@ -168,37 +168,87 @@
     (.setFloat "Shininess" 10)))
 
 
-;; i.e the original STRUCT from Plasm
-(defn struct2
-  "Merge all the input given meshs into a single one."
-  [& meshs]
+
+(defn merge-geometries
+  "Merge all the input given meshs into a single one.
+  It's a fairly powerful function, since its input can be
+  an arbitrary number of functions and geometrical object.
+  The input is visited from right to left, applying (if present)
+  the functions to the Geometry objects. The only constrain is
+  that the result must be a Geometry object."
+  [& args]
   (let [out-mesh (Mesh.)]
-    (GeometryBatchFactory/mergeGeometries meshs out-mesh)
+    (GeometryBatchFactory/mergeGeometries args out-mesh)
     (doto (Geometry. "structured" out-mesh)
       (.setMaterial (default-material)))))
 
 
-(defn jvector
+;; i.e the original STRUCT from Plasm
+(defn struct2
+  [& args]
+  (loop [acc (first args), cur (ffirst args), rst (rest (rest args))]
+    (cond
+      (empty? rst) (if (instance? Geometry cur) (merge-geometries acc cur) (cur acc))
+      (instance? Geometry cur) (recur (merge-geometries acc cur) (first rst) (rest rst))
+      true (recur (cur acc) (first rst) (rest rst)))))
+
+
+(defn- jvector
   "Returns a Vector3f given values and axis"
-  [axis value]
+  [axes value]
   (cond-match
     
-    [java.lang.Integer axis]
+    [java.lang.Integer axes]
     (doto (Vector3f.)
-      (.set (dec axis) value))
+      (.set (dec axes) value))
 
-    [clojure.lang.IPersistentCollection axis]
-    (let [result (Vector3f.)]
-      (for [[i v] (map vector axis value)] (.set result (dec i) v))
+    [clojure.lang.IPersistentCollection axes]
+    (let [result (Vector3f.)
+          av-vec (map vector axes value)]
+      (doseq [[a v] av-vec] (.set result (dec a) v))
       result)
 
-    [? axis] (throw (IllegalArgumentException. "Invalid input for jvector"))))
+    [? axes] (throw (IllegalArgumentException. "Invalid input for jvector"))))
 
 
 (defhigh t
-  "Translate function."
-  [axis values]
-  (println "foo"))
+  "Translate function. High order function.
+  Usage:
+  (t 1 2.0 (cube 1)) -> move the cube from <0,0,0> to <2.0,0,0>
+  (t [1 2] [3.0 2.0] (cube 1) -> move the cube to <3.0,2.0,0>"
+  [axes value geom]
+  (doto ^Geometry geom
+    (.move (jvector axes value))))
+
+
+(defhigh s
+  "Scale function. High order function.
+  Usage:
+  (s 1 0.5 (cube 1)) -> scale 50% of cube x-side
+  (s [1 2] [0.5 0.7] (cube 1)) -> scale 50% x and 70% y."
+  [axes value geom]
+  (cond-match
+
+    [java.lang.Integer axes]
+    (let [av-map (hash-map (dec axes) value)]
+      (doto ^Geometry geom
+      (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))))
+
+    [clojure.lang.IPersistentCollection axes]
+    (let [av-map (reduce into (map hash-map (map dec axes) value))]
+      (doto ^Geometry geom
+      (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))))
+
+    [? axes] (throw (IllegalArgumentException. "Invalid input for scale"))))
+
+
+(defhigh r
+  "Rotate function. High order function."
+  [axis rotation geom]
+  (let [quaternion (Quaternion.)]
+    (.fromAngleAxis quaternion rotation (jvector axis 1.0))
+    (doto ^Geometry geom
+      (.setLocalRotation quaternion))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

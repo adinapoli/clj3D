@@ -733,65 +733,6 @@ if self_test:
 	assert len(temp[0])==6 and len(temp[0][0])==4 and len(temp[1])==1 and len(temp[1][0])==6 and len(temp[2])==1
 
 
-# ===================================================
-# TRANSLATE
-# ===================================================
-
-def TRANSLATE (axis):
-    def TRANSLATE1 (axis,values):
-        def TRANSLATE2 (axis,values,pol):
-            axis    = [axis    ] if ISNUM(axis    ) else axis
-            values= [values] if ISNUM(values) else values
-            vt= Vecf(max(axis))
-            for a,t in zip(axis,values):vt.set(a,t)
-            return Plasm.translate(pol, vt)
-        return lambda pol: TRANSLATE2(axis,values,pol)    
-    return lambda values: TRANSLATE1(axis,values)
-T = TRANSLATE
-
-
-if self_test: 
-	assert(Plasm.limits(T(3)(2)(Plasm.cube(2)))==Boxf(Vecf(1,0,0,2),Vecf(1,1,1,2)))
-	assert(Plasm.limits(T([1,3])([1,2])(Plasm.cube(2)))==Boxf(Vecf(1,1,0,2),Vecf(1,2,1,2)))
-
-# ===================================================
-# SCALE
-# ===================================================
-
-def SCALE (axis):
-    def SCALE1 (axis,values):
-        def SCALE2 (axis,values,pol):
-            axis    = [axis    ] if ISNUM(axis    ) else axis
-            values= [values] if ISNUM(values) else values
-            dim=max(axis)
-            vs = Vecf([1 for x in range(dim+1)]);vs.set(0,0.0)
-            for a,t in zip(axis,values):vs.set(a,t)
-            return Plasm.scale(pol, vs)
-        return lambda pol: SCALE2(axis,values,pol)    
-    return lambda values: SCALE1(axis,values)
-S = SCALE
-
-
-if self_test: 
-	assert(Plasm.limits(S(3)(2)(Plasm.cube(3)))==Boxf(Vecf(1,0,0,0),Vecf(1,1,1,2)))
-	assert(Plasm.limits(S([3,1])([4,2])(Plasm.cube(3)))==Boxf(Vecf(1,0,0,0),Vecf(1,2,1,4)))
-
-# ===================================================
-# ROTATE
-# ===================================================
-
-def ROTATE (plane_indexes):
-    def ROTATE1 (angle):
-        def ROTATE2 (pol):
-            dim = max(plane_indexes)
-            return Plasm.rotate(pol, dim, plane_indexes[0] , plane_indexes[1], angle)
-        return ROTATE2    
-    return ROTATE1
-R = ROTATE
-
-if self_test: 
-	assert(Plasm.limits(ROTATE([1,2])(PI/2)(Plasm.cube(2))).fuzzyEqual(Boxf(Vecf(1,-1,0),Vecf(1,0,+1))))
-
 
 # ===================================================
 #; Applica uno shearing con vettore shearing-vector-list sulla variabile
@@ -806,17 +747,7 @@ def SHEARING (i):
     return SHEARING1
 H = SHEARING
        
-# ===================================================
-# generic matrix
-# ===================================================
-def MAT (matrix):
-    def MAT0 (pol):
-        vmat= Matf(CAT(matrix))
-        return Plasm.transform(pol,vmat,vmat.invert() )
-    return MAT0   
 
-if self_test: 
-	assert(Plasm.limits(MAT([[1,0,0],[1,1,0],[2,0,1]])(Plasm.cube(2)))==Boxf(Vecf(1,1,2),Vecf(1,2,3)))
 
 # ===================================================
 # EMBED
@@ -827,51 +758,6 @@ def EMBED (up_dim):
         new_dim_pol = Plasm.getSpaceDim(pol) + up_dim
         return Plasm.embed(pol,new_dim_pol)
     return EMBED1    
-
-# ===================================================
-# STRUCT
-# ===================================================
-
-def STRUCT(seq,nrec=0):
-
-	if not isinstance(seq,list) : 
-		raise Exception("STRUCT must be applied to a list")
-	
-	if (len(seq)==0):
-		raise Exception("STRUCT must be applied to a not empty list")
-	
-	# avoid side effect
-	if (nrec==0): seq=[x for x in seq] 
-	
-	# accumulate pols without transformations
-	pols=[]
-	while len(seq)>0 and ISPOL(seq[0]):
-		pols+=[seq[0]]; seq=seq[1:]
-	
-	# accumulate transformations for pols
-	transformations=[]
-	while len(seq)>0 and ISFUN(seq[0]): 
-		transformations+=[seq[0]]; seq=seq[1:]
-	
-	# avoid deadlock, i.e. call the recursion on invalid arguments
-	if len(seq)>0 and not ISPOL(seq[0]) and not ISFUN(seq[0]):
-		raise Exception("STRUCT arguments not valid, not all elements are pols or transformations")
-	
-	if len(seq)>0:
-		assert ISPOL(seq[0]) # eaten all trasformations, the next must be a pol!
-		child=STRUCT(seq,nrec+1)
-		assert ISPOL(child)
-		if (len(transformations)>0): child=COMP(transformations)(child)
-		pols+=[child]
-	
-	if len(pols)==0:
-		raise Exception("Cannot find geometry in STRUCT, found only transformations")
-	
-	return Plasm.Struct(pols)     
-
-if self_test: 
-	assert(Plasm.limits(STRUCT([Plasm.cube(2)  ,  T([1,2])([1,1]) ,  T([1,2])([1,1]) ,  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,4,4))))
-	assert(Plasm.limits(STRUCT([  T([1,2])([1,1]),T([1,2])([1,1]),Plasm.cube(2)  ,  T([1,2])([1,1])  ,T([1,2])([1,1]),  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,2,2),Vecf(1,6,6))))
 
 
 
