@@ -169,28 +169,34 @@
 
 
 
-(defn merge-geometries
-  "Merge all the input given meshs into a single one.
-  It's a fairly powerful function, since its input can be
-  an arbitrary number of functions and geometrical object.
-  The input is visited from right to left, applying (if present)
-  the functions to the Geometry objects. The only constrain is
-  that the result must be a Geometry object."
-  [& args]
+(defhigh merge-geometries
+
+  [geom1 geom2]
   (let [out-mesh (Mesh.)]
-    (GeometryBatchFactory/mergeGeometries args out-mesh)
+    (GeometryBatchFactory/mergeGeometries [geom1 geom2] out-mesh)
     (doto (Geometry. "structured" out-mesh)
       (.setMaterial (default-material)))))
 
 
 ;; i.e the original STRUCT from Plasm
 (defn struct2
+  "Merge all the input given meshs into a single one.
+  It's a fairly powerful function, since its input can be
+  an arbitrary number of functions and geometrical object.
+  The input is visited from right to left, applying (if present)
+  the functions to the Geometry objects. The only constrain is
+  that the result must be a Geometry object.
+  Usage:
+  (struct2 (cube 1) (t 1 1) (sphere 1) -> returns a translated sphere joined
+  with a cube."
   [& args]
-  (loop [acc (first args), cur (ffirst args), rst (rest (rest args))]
-    (cond
-      (empty? rst) (if (instance? Geometry cur) (merge-geometries acc cur) (cur acc))
-      (instance? Geometry cur) (recur (merge-geometries acc cur) (first rst) (rest rst))
-      true (recur (cur acc) (first rst) (rest rst)))))
+  (let [rev-seq (reverse args)]
+    (reduce (fn [x y]
+      (cond-match
+        [[com.jme3.scene.Geometry com.jme3.scene.Geometry] [x y]] (merge-geometries x y)
+        [[com.jme3.scene.Geometry ?func] [x y]] (func x)
+        [[?func com.jme3.scene.Geometry] [x y]] (func x)
+        [? [x y]] (throw (IllegalArgumentException. "Invalid input for struct")))) rev-seq)))
 
 
 (defn- jvector
@@ -307,3 +313,9 @@
          sphere (Geometry. "sphere" sphere-mesh)]
     (.setMaterial sphere (default-material))
     sphere)))
+
+
+
+(def my-input [(cube 1) (t 1 1) (sphere 1)])
+(defn my-fun
+  )
