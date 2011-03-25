@@ -7,11 +7,11 @@
     [clojure.contrib.generic.math-functions :as cl-math]
     [incanter.core :as ictr-core])
   (:import
-    [com.jme3.math Vector3f ColorRGBA Quaternion]
+    [com.jme3.math Vector3f Vector2f ColorRGBA Quaternion]
     [com.jme3.asset AssetManager]
     [com.jme3.system JmeSystem]
     [com.jme3.material Material]
-    [com.jme3.scene.shape Box Line Sphere]
+    [com.jme3.scene.shape Box Line Sphere Cylinder Torus]
     [com.jme3.scene Geometry Mesh]
     [jme3tools.optimize GeometryBatchFactory]))
 
@@ -76,6 +76,9 @@
   (if (char? x)
     (int x)
     (throw (ClassCastException. "Argument is not a valid character."))))
+
+
+(def power cl-math/pow)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -144,7 +147,7 @@
 (def ^{:private true} default-color (ColorRGBA/LightGray))
 
 
-(defn color
+(defhigh color
   "Change the color of the shape, then return the shape itself."
   [color-symbol ^Geometry object]
   (let [material (.getMaterial object)]
@@ -185,12 +188,15 @@
   an arbitrary number of functions and geometrical object.
   The input is visited from right to left, applying (if present)
   the functions to the Geometry objects. The only constrain is
-  that the result must be a Geometry object.
+  that the result must be a Geometry object. You can even pass a
+  sequence of transformation/geometries.
   Usage:
   (struct2 (cube 1) (t 1 1) (sphere 1) -> returns a translated sphere joined
-  with a cube."
+  with a cube.
+  (struct 2 [(color :red) (cube 1)]) -> returns a red cube."
   [& args]
-  (let [rev-seq (reverse args)]
+  (let [flattened-args (flatten args)
+        rev-seq (reverse flattened-args)]
     (reduce (fn [x y]
       (cond-match
         [[com.jme3.scene.Geometry com.jme3.scene.Geometry] [x y]] (merge-geometries x y)
@@ -257,6 +263,17 @@
       (.setLocalRotation quaternion))))
 
 
+(defn skeleton
+  [dim geom]
+  (cond-match
+
+    [1 dim]
+    (doto ^Geometry geom
+      (.. getMaterial getAdditionalRenderState (setWireframe true)))
+
+    [? dim] geom))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PRIMITIVES
 ;; NOTE: JMonkey uses a different mapping between coordinates and the
@@ -300,7 +317,7 @@
 (defn sphere
   "Returns a new sphere in (0,0,0).
   (sphere radius) -> returns a sphere of the given radius
-  (sphere x y radius) -> returns a sphere composed by x and
+  (sphere radius x y) -> returns a sphere composed by x and
   y segment, of the given radius."
   ([radius]
   (let [sphere-mesh (Sphere. 50 50 radius)
@@ -315,7 +332,49 @@
     sphere)))
 
 
+(defn cylinder
+  "Returns a new cylinder in (0,0,0).
+  (cylinder radius height) -> returns a cylinder of the given radius and height
+  (cylinder radius height x y) -> returns a cylinder composed by x and
+  y segment, of the given radius and height."
+  ([radius height]
+  (let [cylinder-mesh (Cylinder. 50 50 radius height true)
+         cylinder (Geometry. "cylinder" cylinder-mesh)]
+    (t 3 (/ height 2.0) cylinder)
+    (doto ^Geometry cylinder
+      (.setMaterial (default-material)))))
 
-(def my-input [(cube 1) (t 1 1) (sphere 1)])
-(defn my-fun
-  )
+  ([radius height z-seg r-seg]
+  (let [cylinder-mesh (Cylinder. z-seg r-seg radius height true)
+         cylinder (Geometry. "cylinder" cylinder-mesh)]
+    (t 3 (/ height 2.0) cylinder)
+    (doto ^Geometry cylinder
+      (.setMaterial (default-material))))))
+
+
+(defn torus
+  "Returns a new torus in (0,0,0).
+  (torus r1 r2) -> returns a torus of the given radius r1 and r2
+  (torus r1 r2 x y) -> returns a torus composed by x and
+  y segment, of the given radius r1 and r2."
+  ([r1 r2]
+  (let [torus-mesh (Torus. 50 50 r1 r2)
+         torus (Geometry. "torus" torus-mesh)]
+    (doto torus
+      (.setMaterial (default-material)))))
+
+  ([r1 r2 z-seg r-seg]
+  (let [torus-mesh (Torus. z-seg r-seg r1 r2)
+         torus (Geometry. "torus" torus-mesh)]
+    (doto torus
+      (.setMaterial (default-material))))))
+
+
+(defn triangle
+  "Returns a new 2D triangle in (0,0,0)."
+  [v1 v2 v3]
+  (let [triangle-mesh (Mesh.)
+        vertices (into-array Vector3f [(jvector [1 2] v1)
+                                       (jvector [1 2] v2)
+                                       (jvector [1 2] v3)])]
+    vertices))

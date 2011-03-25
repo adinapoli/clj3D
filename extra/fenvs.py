@@ -798,22 +798,6 @@ def JOIN (pol_list):
 if self_test: 
 	assert(Plasm.limits(JOIN([Plasm.cube(2,0,1)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1,1))))
 
-# ===================================================
-# also ** can be used to indicates POWER
-# ===================================================
-def POWER (objs_list):
-     
-     if not isinstance(objs_list,list) or len(objs_list)!=2:
-        raise Exception("POWER can only be applied to a list of 2 arguments") 
-
-     if ISNUM(objs_list[0]) and ISNUM(objs_list[1]):
-        return math.pow(objs_list[0], objs_list[1])
-
-     return Plasm.power(objs_list[0], objs_list[1])
-        
-if self_test: 
-	assert(POWER([2,2])==4)
-	assert(Plasm.limits(POWER([Plasm.cube(2),Plasm.cube(1)])).fuzzyEqual(Boxf(Vecf(1,0,0,0),Vecf(1,1,1,1))))
 
 # ===================================================
 # Skeleton
@@ -1195,49 +1179,6 @@ def CIRCLE (R):
 
 if self_test: 
     assert Plasm.limits(CIRCLE(1.0)([8,8]))==Boxf(Vecf(1,-1,-1),Vecf(1,+1,+1))
-
-
-# =============================================
-# MY_CILINDER 
-# =============================================
-
-def MY_CYLINDER (args):
-    R , H = args
-    def MY_CYLINDER0 (N):
-        points=CIRCLE_POINTS(R,N)
-        circle=Plasm.mkpol(2,CAT(points),[range(N)])
-        return Plasm.power(circle,Plasm.mkpol(1,[0,H],[[0,1]]))
-    return MY_CYLINDER0
-
-CYLINDER =MY_CYLINDER 
-
-
-if self_test: 
-   assert(Plasm.limits(CYLINDER ([1.0,2.0])(8)).fuzzyEqual(Boxf(Vecf(1,-1,-1,0),Vecf(1,+1,+1,2))))
-
-
-
-# =============================================
-# SPHERE
-# =============================================
-
-
-def SPHERE (radius):
-    def SPHERE0 (subds):
-        N , M = subds
-        domain = Plasm.translate( Plasm.power(INTERVALS(PI)(N) , INTERVALS(2*PI)(M)), Vecf(0, -PI/2,0 ) )
-        fx  = lambda p: radius * math.cos(p[0])  * math.sin  (p[1])
-        fy  = lambda p: radius * math.cos(p[0]) * math.cos (p[1])
-        fz  = lambda p: radius * math.sin(p[0]) 
-        ret=  MAP([fx, fy, fz])(domain)
-        return ret
-    return SPHERE0
-
-if self_test:
-	assert Plasm.limits(SPHERE(1)([8,8])).fuzzyEqual(Boxf(Vecf(1,-1,-1,-1),Vecf(1,+1,+1,+1)))
-	plasm_config.push(1e-4)
-	VIEW(SPHERE(1)([16,16]))
-	plasm_config.pop()
 
 
 # =============================================
