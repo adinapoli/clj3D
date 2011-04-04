@@ -5,8 +5,8 @@ Clj3D is a Clojure graphic library for manipulating 3D and 2D objects. It
 aims to be the Clojure standard in 3D and 2D rendering. 
 
 .. image:: https://github.com/CharlesStain/clj3D/raw/master/imgs/screen1.jpg 
-   :height: 100
-   :width: 200
+    :height: 100
+    :width: 200
 
 .. image:: https://github.com/CharlesStain/clj3D/raw/master/imgs/screen2.jpg
 
