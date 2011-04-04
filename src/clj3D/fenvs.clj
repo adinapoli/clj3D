@@ -5,14 +5,15 @@
     [clojure.contrib.def :only [defalias]])
   (:require
     [clojure.contrib.generic.math-functions :as cl-math]
-    [incanter.core :as ictr-core])
+    [incanter.core :as ictr-core]
+    [incanter.charts :as ictr-charts])
   (:import
     [com.jme3.math Vector3f Vector2f ColorRGBA Quaternion]
     [com.jme3.asset AssetManager]
     [com.jme3.system JmeSystem]
     [com.jme3.material Material]
-    [com.jme3.scene.shape Box Line Sphere Cylinder Torus]
-    [com.jme3.scene Geometry Mesh]
+    [com.jme3.scene.shape Box Line Sphere Cylinder Torus Quad]
+    [com.jme3.scene Geometry Mesh Mesh$Mode VertexBuffer VertexBuffer$Type]
     [jme3tools.optimize GeometryBatchFactory]))
 
 
@@ -171,6 +172,11 @@
     (.setFloat "Shininess" 10)))
 
 
+(defn- unlit-material []
+  (doto (Material. asset-manager "Common/MatDefs/Misc/Unshaded.j3md")
+    (.setColor "Color"  default-color)))
+
+
 
 (defhigh merge-geometries
 
@@ -266,6 +272,16 @@
 (defn skeleton
   [dim geom]
   (cond-match
+
+   [0 dim]
+   (let [mesh (.getMesh geom)]
+     (.setMode mesh Mesh$Mode/Points)
+     (.setPointSize mesh 5.0)
+     (.updateBound mesh)
+     (.setStatic mesh)
+     (doto ^Geometry (Geometry. "skeleton-0" mesh)
+	   (.setMaterial (unlit-material))
+	   (.. getMaterial (setColor "Color" ColorRGBA/Red))))
 
     [1 dim]
     (doto ^Geometry geom
@@ -371,10 +387,27 @@
 
 
 (defn triangle
-  "Returns a new 2D triangle in (0,0,0)."
+  "Returns a new 2D triangle in with vertexes v1 v2 v3."
   [v1 v2 v3]
   (let [triangle-mesh (Mesh.)
-        vertices (into-array Vector3f [(jvector [1 2] v1)
-                                       (jvector [1 2] v2)
-                                       (jvector [1 2] v3)])]
-    vertices))
+        vertices (float-array (flatten [v1 0 v2 0 v3 0]))
+        tex-cord (float-array [0 0 1 0 0 1])
+        indexes (int-array [2 0 1 1 0 2])
+        normals (float-array (flatten (repeat 3 [0 0 1])))]
+
+    (doto ^Mesh triangle-mesh
+      (.setBuffer VertexBuffer$Type/Position 3 vertices)
+      (.setBuffer VertexBuffer$Type/Normal 3 normals)
+      (.setBuffer VertexBuffer$Type/TexCoord 2 tex-cord)
+      (.setBuffer VertexBuffer$Type/Index 1 indexes)
+      (.updateBound))
+
+    (doto (Geometry. "triangle" triangle-mesh)
+      (.setMaterial (default-material)))))
+
+
+(defn quad
+  [width height]
+  (let [quad-mesh (Quad. width height)]
+    (doto (Geometry. "quad" quad-mesh)
+      (.setMaterial (default-material)))))

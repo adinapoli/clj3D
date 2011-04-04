@@ -40,6 +40,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.PointLight;
+import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
@@ -81,6 +82,7 @@ public abstract class Viewer extends Application {
     protected StatsView statsView;
     protected FlyByCamera flyCam;
     protected PointLight cameraLight;
+    protected DirectionalLight sunLight;
     
     //Non mostra la schermata iniziale con la scimmia
     protected boolean showSettings = false;
@@ -122,6 +124,9 @@ public abstract class Viewer extends Application {
         this.cameraLight = new PointLight();
         this.cameraLight.setColor(ColorRGBA.White);
         this.cameraLight.setRadius(10f);
+        this.sunLight = new DirectionalLight();
+        this.sunLight.setColor(ColorRGBA.White);
+        this.sunLight.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
     }
 
     @Override
@@ -274,6 +279,7 @@ public abstract class Viewer extends Application {
 
         cameraLight.setPosition(cam.getLocation());
         rootNode.addLight(cameraLight);
+        rootNode.addLight(this.sunLight);
         
         
         // call user code

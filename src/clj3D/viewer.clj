@@ -3,13 +3,12 @@
     [clj3D.fenvs :only [pull]]
     [clojure.contrib.def :only [defalias]])
   (:require
-    [incanter.core :as ictr-core]
-    [incanter.charts :as ictr-charts])
+    [incanter.core :as ictr-core])
   (:import
-    (clj3D ObjectViewer)
-    (java.awt Dimension Toolkit)
-    (com.jme3.system AppSettings)
-    (com.jme3.scene Node Spatial Geometry)))
+    [clj3D ObjectViewer]
+    [java.awt Dimension Toolkit]
+    [com.jme3.system AppSettings]
+    [com.jme3.scene Node Spatial Geometry]))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
