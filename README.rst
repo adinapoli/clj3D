@@ -24,7 +24,7 @@ No external dependencies, no modules to install. Just a single jar. Import it in
 Leiningen project and you are ready to go. Displaying something is dead-easy:
 ::
 
-    (use '(clj3D fenvs viewer))
+    (use '(clj3D fenvs viewer) :reload)
     (view (cube 1))
 
 ..Clj3D is batteries included
@@ -32,7 +32,10 @@ Leiningen project and you are ready to go. Displaying something is dead-easy:
 Clj3D is shipped with some interesting library and features, like the powerful
 `Incanter <http://incanter.org/>`_ library. Clj3D offers to you the best features
 of this library directly injected into the namespace. Forget external ":use" or
-":require"
+":require". You can even use some Incanter methods:
+::
+  (view (matrix [[0 1 2] 
+                 [3 4 5]]))
 
 ..Clj3D is fast (as it can)
 ---------------------------
