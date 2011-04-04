@@ -33,6 +33,7 @@ No external dependencies, no modules to install. Just a single jar. Import it in
 Leiningen project and you are ready to go. Displaying something is dead-easy:
 
 .. raw:: html
+
     <pre class="brush: clojure;">
     (use '(clj3D fenvs viewer) :reload)
     (view (cube 1))
