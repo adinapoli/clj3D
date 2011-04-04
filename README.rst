@@ -47,6 +47,18 @@ Incanter's matrix when they needs.
 ---------------
 Clj3D is free and it's hosted on `Github <https://github.com/CharlesStain/clj3D>`_
 
+Installation and usage
+----------------------
+I will provide monthly jar on Clojars. These standalone jars can be imported directly into a leiningen project.
+Alternatively, you can clone this repo and create the jar from scratch. You can even play with clj3D in the usual way:
+::
+
+  git clone
+  lein deps
+  lein compile
+  lein repl
+  ;=>PLAY! HAVE FUN!
+
 ## License
 
 Copyright (C) 2010 FIXME
