@@ -274,7 +274,7 @@
   (cond-match
 
    [0 dim]
-   (let [mesh (.getMesh geom)]
+   (let [mesh (.getMesh ^Geometry geom)]
      (.setMode mesh Mesh$Mode/Points)
      (.setPointSize mesh 5.0)
      (.updateBound mesh)

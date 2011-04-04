@@ -7,6 +7,7 @@ aims to be the Clojure standard in 3D and 2D rendering.
 .. image:: https://github.com/CharlesStain/clj3D/raw/master/imgs/screen1.jpg
 .. image:: https://github.com/CharlesStain/clj3D/raw/master/imgs/screen2.jpg
 .. image:: https://github.com/CharlesStain/clj3D/raw/master/imgs/screen3.jpg
+.. image:: https://github.com/CharlesStain/clj3D/raw/master/imgs/screen4.jpg
 
 You should consider using Clj3D for a few reasons..
 
