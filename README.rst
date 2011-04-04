@@ -1,6 +1,15 @@
 Clj3D - Visual prototyping for the masses
 =========================================
 
+.. raw:: html
+
+    <script type="text/javascript" src="http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js"></script>
+    <script type="text/javascript" src="http://alexgorbatchev.com/pub/sh/current/scripts/shBrushJScript.js"></script>
+    <script type="text/javascript" src="http://www.undermyhat.org/blog/wp-content/uploads/2009/09/shBrushClojure.js"></script>
+    <link type="text/css" rel="stylesheet" href="http://alexgorbatchev.com/pub/sh/current/styles/shThemeRDark.css"/>
+    <script type="text/javascript">SyntaxHighlighter.all();</script>
+
+
 Clj3D is a Clojure graphic library for manipulating 3D and 2D objects. It
 aims to be the Clojure standard in 3D and 2D rendering. 
 
@@ -21,7 +30,13 @@ CAD Group at the Universities "La Sapienza" and "Roma Tre". You can have both. R
 ..Clj3D is easy to start with
 -----------------------------
 No external dependencies, no modules to install. Just a single jar. Import it into a
-Leiningen project and you are ready to go.
+Leiningen project and you are ready to go. Displaying something is dead-easy:
+
+.. raw:: html
+    <pre class="brush: clojure;">
+    (use '(clj3D fenvs viewer) :reload)
+    (view (cube 1))
+    </pre>
 
 ..Clj3D is batteries included
 -----------------------------
