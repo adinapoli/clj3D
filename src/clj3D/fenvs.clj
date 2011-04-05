@@ -315,20 +315,16 @@
 
     [1 dim]
     (doto ^Geometry geom
-      (.. getMaterial getAdditionalRenderState (setWireframe true)))
+	  (.setMaterial (unlit-material))
+	  (.. getMaterial getAdditionalRenderState (setWireframe true)))
 
     [? dim] geom))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PRIMITIVES
-;; NOTE: JMonkey uses a different mapping between coordinates and the
-;; coordinate plane itself.
-;; In plasm: [x y z]
-;; In jmonkey: [x z y]
-;; It will be used the jmonkey convention, since it will be simpler to port
-;; the codes and it's more natural and intuitive (z is the depthness, y the
-;; height).
+;; NOTE: Apparently PLaSM and JMonkey use the same coordinate system, but in
+;; jmonkey the camera is rotated. Need to fix this.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -353,11 +349,13 @@
 
 (defn line
   "New in clj3D. Draw a simple line from start to end"
-  ([[x1 y1 z1] [x2 y2 z2]]
-  (let [line-mesh (Line. (Vector3f. x1 y1 z1) (Vector3f. x2 y2 z2))
-         line-geom (Geometry. "line" line-mesh)]
-    (.setMaterial line-geom (default-material))
-    line-geom)))
+  ([[x1 y1 & z1] [x2 y2 & z2]]
+     (let [z1 (if (seq z1) (first z1) 0)
+	   z2 (if (seq z2) (first z2) 0)
+	   line-mesh (Line. (Vector3f. x1 y1 z1) (Vector3f. x2 y2 z2))
+	   line-geom (Geometry. "line" line-mesh)]
+       (.setMaterial line-geom (unlit-material))
+       line-geom)))
 
 
 (defn sphere
@@ -366,16 +364,16 @@
   (sphere radius x y) -> returns a sphere composed by x and
   y segment, of the given radius."
   ([radius]
-  (let [sphere-mesh (Sphere. 50 50 radius)
-         sphere (Geometry. "sphere" sphere-mesh)]
-    (.setMaterial sphere (default-material))
-    sphere))
+     (let [sphere-mesh (Sphere. 50 50 radius)
+	   sphere (Geometry. "sphere" sphere-mesh)]
+       (.setMaterial sphere (default-material))
+       sphere))
 
   ([radius z-seg r-seg]
-  (let [sphere-mesh (Sphere. z-seg r-seg radius)
-         sphere (Geometry. "sphere" sphere-mesh)]
-    (.setMaterial sphere (default-material))
-    sphere)))
+     (let [sphere-mesh (Sphere. z-seg r-seg radius)
+	   sphere (Geometry. "sphere" sphere-mesh)]
+       (.setMaterial sphere (default-material))
+       sphere)))
 
 
 (defn cylinder

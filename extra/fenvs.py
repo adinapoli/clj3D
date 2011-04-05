@@ -15,24 +15,6 @@ if self_test:
 
 
 # ===================================================
-# INSR
-# ===================================================
-
-def INSR(f):
-    def INSR0(seq):
-        length=len(seq)
-        res = seq[-1]
-        for i in range(length - 2,-1,-1): res = f([seq[i], res])
-        return res
-    return INSR0 
-
-  
-
-if self_test: 
-	assert(INSR(lambda x: x[0]-x[1])([1,2,3])==2)
-
-
-# ===================================================
 # FL LIFT and RAISE functions 
 # ===================================================
 
@@ -2758,49 +2740,6 @@ if self_test:
 	VIEW(DISPLAYNURBSPLINE([2, knots, controlpoints]))
 
 
-
-#===================================================================================
-# Colors (wants a list [R,G,B] or [R,G,B,A]
-# Example COLOR([1,0,0])(pol)
-#===================================================================================
-
-def COLOR(C):
-
-	def formatColor(C):
-		assert isinstance(C,Color4f) 
-		return "%s %s %s %s" % (C.r,C.g,C.b,C.a)
-
-	# convert list to Color
-	if isinstance(C,list) and len(C) in (3,4):
-		C=Color4f(C[0],C[1],C[2],C[3] if len(C)>=4 else 1.0)
-
-	if not isinstance(C,Color4f):
-		raise Exception("cannot transform " + repr(C) + " to Color4f")
-
-	def COLOR0(pol):
-		return Plasm.addProperty(pol, "RGBcolor", formatColor(C))
-
-	return COLOR0
-
-GRAY    = Color4f([0.5, 0.5, 0.5, 1.0])
-GREEN   = Color4f([0.0, 1.0, 0.0, 1.0])
-BLACK   = Color4f([0.0, 0.0, 0.0, 1.0])
-BLUE    = Color4f([0.0, 0.0, 1.0, 1.0])
-BROWN   = Color4f([0.5, 0.5, 0.5, 1.0])
-CYAN    = Color4f([0.0, 1.0, 1.0, 1.0])
-MAGENTA = Color4f([1.0, 0.0, 1.0, 1.0])
-ORANGE  = Color4f([1.0, 0.5, 1.0, 1.0])
-PURPLE  = Color4f([0.5, 0.0, 0.5, 1.0])
-WHITE   = Color4f([1.0, 1.0, 1.0, 1.0])
-RED     = Color4f([1.0, 0.0, 0.0, 1.0])
-YELLOW  = Color4f([1.0, 1.0, 0.0, 1.0])
-
-
-
-if self_test: 
-   (Plasm.getProperty(COLOR(RED)(Plasm.cube(3)),"RGBcolor")==("%s %s %s %s" % (1.0,0.0,0.0,1.0)))
-
-
 #===================================================================================
 # Materials (want a list of 17 elements(ambientRGBA, diffuseRGBA specularRGBA emissionRGBA shininess)
 # Example MATERIAL([1,0,0,1,  0,1,0,1,  0,0,1,0, 0,0,0,1, 100])(pol)
@@ -3004,5 +2943,3 @@ def BOUNDARY(hpc,dim):
 			faces_db.append(sorted(new_face))
 				
 	return [vertex_db,faces_db]
-
-
