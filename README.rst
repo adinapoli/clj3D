@@ -34,6 +34,7 @@ Clj3D is shipped with some interesting library and features, like the powerful
 of this library directly injected into the namespace. Forget external ":use" or
 ":require". You can even use some Incanter methods:
 ::
+
   (view (matrix [[0 1 2] 
                  [3 4 5]]))
 
@@ -59,9 +60,12 @@ Alternatively, you can clone this repo and create the jar from scratch. You can 
   lein repl
   ;=>PLAY! HAVE FUN!
 
-## License
+**For usage consult the** `Wiki <https://github.com/CharlesStain/clj3D/wiki>`_
 
-Copyright (C) 2010 FIXME
+License
+-------
+
+Copyright (C) 2011 Alfredo Di Napoli
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
