@@ -138,9 +138,13 @@
 
 
 (defhigh insr
-  "Like (reduce func (reverse seq)) but high order."
+  "Like PLaSM original INSR. Beware, it's not the same
+   thing of (reduce func (reverse seq)!. It is equivalent
+   to the following:
+   Be f a function and [x1,x2,x3] a seq:
+   => (f x1 (f x2 x3)) and so on..."
   [func seq]
-  (reduce func (reverse seq)))
+  (reduce #(func %2 %1) (reverse seq)))
 
 
 (defhigh cons2

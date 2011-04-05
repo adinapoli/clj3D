@@ -1,10 +1,3 @@
-
-
-def C (fun):
-    return lambda arg1: lambda arg2: fun([arg1,arg2])
-
-
-
 #=====================================================
 # hpc type
 #===================================================== 
@@ -19,50 +12,6 @@ def ISPOL (obj):
 
 if self_test: 
 	assert(ISPOL(Plasm.cube(2))==True)
-
-
-
-
-# ===================================================
-# PLASM  Comparison operators 
-# ===================================================
-
-def Eq (x,y): return x == y
-
-def EQ(List):
-    for i in List:
-       if not i==List[0]: return False
-    return True
-
-def NEQ(List): 
-    return not EQ(List)
-
-
-if self_test: 
-	assert(EQ([1,1,1]) and not EQ([1,1,2]))
-	assert(NEQ([1,1,2])==True and NEQ([1,1,2/2])==False)
-
-def LT (a):return lambda b: b<a
-def LE (a):return lambda b: b<=a
-def GT (a):return lambda b: b>a
-def GE (a):return lambda b: b>=a
-
-if self_test: assert(LT(2)(1) and LE(2)(2) and  GT(2)(3) and  GE(2)(2))
-
-def ISGT (args):A , B = args;return GT(A)(B)
-def ISLT (args):A , B = args;return LT(A)(B)
-def ISGE (args):A , B = args;return GE(A)(B)
-def ISLE (args):A , B = args;return LE(A)(B)
-
-
-def BIGGER (args): 
-	A , B = args
-	return A if A>=B else B
-
-def SMALLER (args):
-	A , B = args
-	return A if A<=B else B
-
 
 
 # ===================================================
@@ -83,25 +32,6 @@ if self_test:
 	assert(INSR(lambda x: x[0]-x[1])([1,2,3])==2)
 
 
-
-# ===================================================
-# IF THEN ELSE purely functional 
-# ===================================================
-
-def IF (funs):
-    def IF1 (arg):
-        f1, f2, f3 = funs
-        return f2(arg) if f1(arg) else f3(arg)
-    return IF1
-        
- 
-
-if self_test: 
-	assert(IF([lambda x: x, K(True),K(False)])(True)==True)
-	assert(IF([lambda x: x, K(True),K(False)])(False)==False)
-
-
-
 # ===================================================
 # FL LIFT and RAISE functions 
 # ===================================================
@@ -114,65 +44,6 @@ def RAISE (f):
     def RAISE0 (args):
         return IF([ISSEQOF(ISFUN), LIFT(f), f])(args)
     return RAISE0
-
-
-
-# ===================================================
-# PLASM  predicates 
-# ===================================================
-
-def ISNUM (x): 
-	return  isinstance(x, int) or isinstance(x, long) or  isinstance(x, float) or  isinstance(x, complex) or (sys.platform=='cli' and type(x) == System.Single)
-		
-		
-if self_test: 
-	assert(ISNUM(0.0))
-
-def NUMBER_FROM_ZERO_TO_ONE_P (x):  return  ISNUM(x) and x >= 0 and x <= 1
-
-def ISFUN (x): return callable(x)
-
-if self_test: 
-	assert(ISFUN(lambda x:x) and ISFUN(abs) and not ISFUN(3))
-
-def ISNUMPOS (x): return ISNUM(x) and x > 0
-def ISNUMNEG (x): return ISNUM(x) and x < 0
-def ISINT (x): return isinstance(x,int)
-def ISLONG (x): return isinstance(x,long)
-def ISINTPOS (x): return isinstance(x,int) and x > 0
-def ISINTNEG (x): return isinstance(x,int) and x < 0
-def ISREAL (x): return isinstance(x,float)
-def ISREALPOS (x): return isinstance(x,float) and x > 0
-def ISREALNEG (x): return isinstance(x,float) and x < 0
-def ISCOMPLEX (x): return isinstance(x,complex)
-def ISSEQ (x): return isinstance(x,list)
-def ISSEQ_NOT_VOID (x): return True if (isinstance(x,list) and (len(x) >= 1)) else False
-
-def ISSEQOF (type_checker):
-    def ISSEQOF0 (arg):
-        if not isinstance(arg, list): return False
-        for item in arg:
-           if not type_checker(item): return False
-        return True
-    return ISSEQOF0
-
-if self_test: 
-	assert(ISSEQOF(lambda x: isinstance(x,int))([1,2,3])==True)
-	assert(ISSEQOF(lambda x: isinstance(x,int))([1,2,3.0])==False)
-
-def ISNULL (x): return isinstance(x,list) and len(x) == 0
-def ISBOOL (x): return isinstance(x,bool)
-def ISPAIR (x): return isinstance(x,list) and len(x) == 2
-def ISCHAR (x): return isinstance(x,str) and len(x) == 1
-def ISSTRING (x): return isinstance(x,str)
-def ISMAT(x): return  isinstance(x, list) and AND([isinstance(e,list) for e in x])
-def ISEVEN (N): return isinstance(N,int) and (N%2)==1
-def ISNAT(N): return isinstance(N,int) and N>=0
-def ISZERO(N): return N==0
-def ISODD(N): return not ISEVEN(N)
-
-if self_test: 
-	assert(ISMAT([[1,2],[3,4]])==True and not ISMAT([1,2,3,4]))
 
 
 def VECTSUM(vects):  return map(sum,zip(*vects))
@@ -3133,8 +3004,5 @@ def BOUNDARY(hpc,dim):
 			faces_db.append(sorted(new_face))
 				
 	return [vertex_db,faces_db]
-
-
-print "...fenvs.py imported in",(time.clock() - start),"seconds"
 
 
