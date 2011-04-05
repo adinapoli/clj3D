@@ -82,33 +82,6 @@ def INSR(f):
 if self_test: 
 	assert(INSR(lambda x: x[0]-x[1])([1,2,3])==2)
 
-# ===================================================
-# INSL
-# ===================================================
-def INSL(f):
-    def INSL0 (seq):
-        res = seq[0]
-        for item in seq[1:]: res = f([res,item])
-        return res
-    return INSL0   
-
-   
-
-if self_test: 
-	assert(INSL(lambda x: x[0]-x[1])([1,2,3])==-4) 
-
-
-# ===================================================
-# CONS
-# ===================================================
-
-def CONS (Funs): return lambda x : [f(x) for f in Funs]
-
-
-
-if self_test: 
-	assert(CONS( [lambda x : x+1,lambda x : x+2])(0)==[1,2])
-
 
 
 # ===================================================
@@ -200,6 +173,7 @@ def ISODD(N): return not ISEVEN(N)
 
 if self_test: 
 	assert(ISMAT([[1,2],[3,4]])==True and not ISMAT([1,2,3,4]))
+
 
 def VECTSUM(vects):  return map(sum,zip(*vects))
 def VECTDIFF(vects): return map(lambda l: l[0]-sum(l[1:]),zip(*vects))
@@ -546,9 +520,6 @@ def STRING (Charseq): return reduce(lambda x,y: x+y,Charseq)
 if self_test: 
 	assert(STRING(CHARSEQ('hello'))=='hello')
 
-def RANGE (Pair):
-    if ( (Pair[-1]-Pair[0]) >= 0 ): return range(Pair[0], Pair[-1] + 1)
-    return range(Pair[0], Pair[-1] - 1, -1)
 
 
 
@@ -559,9 +530,7 @@ def SIGN (Number): return +1 if Number>=0 else -1
 
 if self_test: assert(SIGN(10)==1 and SIGN(-10)==-1)
 
-def PRINT (AnyValue):
-    print(AnyValue)
-    return AnyValue
+
 
 
 def PRINTPOL (PolValue):

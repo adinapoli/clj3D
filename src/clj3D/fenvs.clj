@@ -23,7 +23,7 @@
 
 ;; Expose some function into a namespace.
 ;; http://stackoverflow.com/questions/4732134/can-i-refer-another-
-;;  namespace-and-expose-its-functions-as-public-for-the-current
+;; namespace-and-expose-its-functions-as-public-for-the-current
 (defmacro pull [ns vlist]
   `(do ~@(for [i vlist]
            `(def ~i ~(symbol (str ns "/" i))))))
@@ -56,6 +56,7 @@
   "Returns the hyperbolic cos of the argument x."
   [x] (Math/cosh x))
 
+
 (defn tanh
   "Returns the hyperbolic tan of the argument x."
   [x] (Math/tanh x))
@@ -71,6 +72,7 @@
     (char x)
     (throw (ClassCastException. "Argument is not a valid integer."))))
 
+
 (defn ord
   "Coerce a character into the correspondent int value."
   [x]
@@ -80,6 +82,10 @@
 
 
 (def power cl-math/pow)
+
+
+(defn fact [n]
+  (if (zero? n) 1 (reduce * (cons 1 (range 1 (inc n))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -123,6 +129,26 @@
 (defhigh aa
   "Like (map f seq)."
   [f seq] (map f seq))
+
+
+(defhigh insl
+  "Like (reduce func seq) but high order."
+  [func seq]
+  (reduce func seq))
+
+
+(defhigh insr
+  "Like (reduce func (reverse seq)) but high order."
+  [func seq]
+  (reduce func (reverse seq)))
+
+
+(defhigh cons2
+  "It's the PLaSM cons function.
+  It takes a sequence of functions and an input, and returns
+  a sequence created applying the given functions to the input."
+  [func-lst arg]
+  (for [func func-lst] (func arg)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Graphics stuff.
