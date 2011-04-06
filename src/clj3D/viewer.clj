@@ -18,12 +18,6 @@
 
 (pull ictr-core (view))
 
-(defn mk-node
-  [& objs]
-  (let [new-node (Node. "node")]
-    (doseq [geom objs] (.attachChild new-node geom))
-    new-node))
-
 
 ;; Display on the screen the geometry or node given in input.
 ;; I have used the defmethod awesomeness to extend the existing

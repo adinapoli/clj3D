@@ -9,6 +9,8 @@ aims to be the Clojure standard in 3D and 2D rendering.
 .. image:: https://github.com/CharlesStain/clj3D/raw/master/imgs/screen3.jpg
 .. image:: https://github.com/CharlesStain/clj3D/raw/master/imgs/screen4.jpg
 
+**The first screencast is out! Watch it* `here <http://www.youtube.com/watch?v=_fLgBzRdddU>`_
+
 You should consider using Clj3D for a few reasons..
 
 ..Clj3D is jMonkeyEngine and Plasm reloaded

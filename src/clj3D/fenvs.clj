@@ -241,6 +241,13 @@
         [? [x y]] (throw (IllegalArgumentException. "Invalid input for struct")))) rev-seq)))
 
 
+(defn mknode
+  [& objs]
+  (let [new-node (Node. "node")]
+    (doseq [geom objs] (.attachChild new-node geom))
+    new-node))
+
+
 (defn- jvector
   "Returns a Vector3f given values and axis"
   [axes value]
