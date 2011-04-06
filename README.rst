@@ -69,6 +69,4 @@ License
 
 Copyright (C) 2011 Alfredo Di Napoli
 
-Distributed under the Eclipse Public License, the same as Clojure.
-
-This file was modified by IntelliJ IDEA 10.0.2 for binding GitHub repository
+Distributed under the MIT License.
