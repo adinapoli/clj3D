@@ -13,8 +13,32 @@
     [com.jme3.system JmeSystem]
     [com.jme3.material Material]
     [com.jme3.scene.shape Box Line Sphere Cylinder Torus Quad]
-    [com.jme3.scene Geometry Mesh Mesh$Mode VertexBuffer VertexBuffer$Type]
-    [jme3tools.optimize GeometryBatchFactory]))
+    [com.jme3.scene Node Geometry Mesh Mesh$Mode VertexBuffer VertexBuffer$Type]
+    [jme3tools.optimize GeometryBatchFactory]
+    [com.jme3.asset.plugins FileLocator]))
+
+
+;; Copyright (c) 2011 Alfredo Di Napoli, https://github.com/CharlesStain/clj3D
+
+;; Permission is hereby granted, free of charge, to any person obtaining
+;; a copy of this software and associated documentation files (the
+;; "Software"), to deal in the Software without restriction, including
+;; without limitation the rights to use, copy, modify, merge, publish,
+;; distribute, sublicense, and/or sell copies of the Software, and to
+;; permit persons to whom the Software is furnished to do so, subject to
+;; the following conditions:
+
+;; The above copyright notice and this permission notice shall be
+;; included in all copies or substantial portions of the Software.
+
+;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+;; LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+;; OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+;; WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 
 
 ;;For performance tweaking. Just ignore this.
@@ -188,9 +212,14 @@
 
 
 (def ^{:private true} asset-manager
-  (JmeSystem/newAssetManager
-    (.getResource (.getContextClassLoader (Thread/currentThread))
-        "com/jme3/asset/Desktop.cfg")))
+     (JmeSystem/newAssetManager
+      (.getResource (.getContextClassLoader (Thread/currentThread))
+		    "com/jme3/asset/Desktop.cfg")))
+
+
+(.registerLocator ^AssetManager asset-manager
+		  (str (. System getProperty "user.dir") "/models")
+		  "com.jme3.asset.plugins.FileLocator")
 
 
 (defn- default-material []
@@ -446,3 +475,13 @@
   (let [quad-mesh (Quad. width height)]
     (doto (Geometry. "quad" quad-mesh)
       (.setMaterial (default-material)))))
+
+
+(defn load-obj
+  "Load an .obj file and makes it available for rendering.
+   Remember to load a single model with this function. For
+   example, in Maya, before exporting a model Combine the
+   meshes into a single one and triangulate the resulting object."
+  [filename]
+  (doto (.loadModel asset-manager filename)
+    (.setMaterial (default-material))))
