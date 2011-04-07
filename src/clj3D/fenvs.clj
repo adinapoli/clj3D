@@ -246,6 +246,15 @@
       (.setMaterial (default-material)))))
 
 
+(defn merge-all
+
+  [geometries]
+  (let [out-mesh (Mesh.)]
+    (GeometryBatchFactory/mergeGeometries geometries out-mesh)
+    (doto (Geometry. "structured" out-mesh)
+      (.setMaterial (default-material)))))
+
+
 ;; i.e the original STRUCT from Plasm
 (defn struct2
   "Merge all the input given meshs into a single one.
@@ -335,7 +344,7 @@
       (.setLocalRotation quaternion))))
 
 
-(defn skeleton
+(defhigh skeleton
   [dim geom]
   (cond-match
 
@@ -385,13 +394,13 @@
 
 (defn line
   "New in clj3D. Draw a simple line from start to end"
-  ([[x1 y1 & z1] [x2 y2 & z2]]
+  [[x1 y1 & z1] [x2 y2 & z2]]
      (let [z1 (if (seq z1) (first z1) 0)
 	   z2 (if (seq z2) (first z2) 0)
 	   line-mesh (Line. (Vector3f. x1 y1 z1) (Vector3f. x2 y2 z2))
 	   line-geom (Geometry. "line" line-mesh)]
        (.setMaterial line-geom (unlit-material))
-       line-geom)))
+       line-geom))
 
 
 (defn sphere
@@ -477,11 +486,30 @@
       (.setMaterial (default-material)))))
 
 
+(defhigh mkpol
+  "Mk polyedra."
+  [vertices dim]
+
+  (cond-match
+
+   [0 dim]
+   (println "TODO")
+
+   [1 dim]
+   (let [vl1 (butlast vertices)
+	 vl2 (next vertices)]
+     (struct2 (map #(line %1 %2) vl1 vl2)))
+   
+
+   [? dim] (println "TODO")))
+
+
 (defn load-obj
   "Load an .obj file and makes it available for rendering.
    Remember to load a single model with this function. For
    example, in Maya, before exporting a model Combine the
    meshes into a single one and triangulate the resulting object."
   [filename]
-  (doto (.loadModel asset-manager filename)
-    (.setMaterial (default-material))))
+  (let [imported-model ^Geometry (.loadModel asset-manager filename)]
+    (doto imported-model
+      (.setMaterial (default-material)))))
