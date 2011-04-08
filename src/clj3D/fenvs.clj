@@ -418,7 +418,15 @@
   the vector [v1 v2 .. vn] where, example:
   (vectsum [0 1] [2 1]) => [2 2]"
   [& args]
-  (into [] (map cat (apply map vector args))))
+  (into [] (map #(reduce + %1) (apply map vector args))))
+
+
+(defn vectdiff
+  "It takes an arbitrary number of vector in input and returns
+  the vector [v1 v2 .. vn] where, example:
+  (vectsum [0 1] [2 1]) => [-2 0]"
+  [& args]
+  (into [] (map #(reduce - %1) (apply map vector args))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -102,4 +102,8 @@
 (deftest vectsum-test
   (is (= [8 20 7] (vectsum [0 1 1] [2 2 2] [4 5 2] [2 12 2])))
   (is (= [0 0] (vectsum [0 1] [1 0] [-1 -1])))
-  (is (= [9 9 9] (vectsum [10 11 12] [0 1 2] [1 1 1]))))
+  (is (= [11 13 15] (vectsum [10 11 12] [0 1 2] [1 1 1]))))
+
+
+(deftest vectdiff-test
+  (is (= [9 9 9] (vectdiff [10 11 12] [0 1 2] [1 1 1]))))
