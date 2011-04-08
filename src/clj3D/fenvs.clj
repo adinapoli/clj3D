@@ -3,6 +3,7 @@
     [matchure]
     [clj3D curry]
     [clojure.contrib.def :only [defalias]])
+  (:refer-clojure :rename {+ core-+})
   (:require
     [clojure.contrib.generic.math-functions :as cl-math]
     [incanter.core :as ictr-core]
@@ -51,6 +52,25 @@
 (defmacro pull [ns vlist]
   `(do ~@(for [i vlist]
            `(def ~i ~(symbol (str ns "/" i))))))
+
+
+(defprotocol Addable
+  (+ [t1 t2]))
+
+
+(extend-protocol Addable
+
+  String
+  (+ [s1 s2] (str s1 s2))
+
+  clojure.lang.IPersistentVector
+  (+ [v1 v2] (into v1 v2)) 
+
+  clojure.lang.ISeq
+  (+ [s1 s2] (concat s1 s2)) 
+
+  Number 
+  (+ [n1 n2] (core-+ n1 n2))) 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -121,7 +141,17 @@
   (partial func arg))
 
 
-(def cat concat)
+(defn cat
+  "Similar to the orginal PLaSM one, but check this difference:
+  1) (cat x) where x is a single data structure (even nested) have the
+     same result of the original PLaSM CAT.
+     Example (cat [1 2]) => 3
+
+  2) (cat & args) where args is a list of args concat all arguments.
+     Example (cat [1 2] [3 4]) => [1 2 3 4]"
+  
+  ([arg] (if-not (empty? arg) (reduce #(+ %1 %2) arg) []))
+  ([e1 & args] (+ e1 (flatten args))))
 
 
 (defn id

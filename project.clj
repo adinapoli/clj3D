@@ -3,7 +3,6 @@
   
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]
-                 [potemkin "0.1.0"]
                  [org.clojars.charles-stain/jme "3.0-alpha4"]
                  [org.clojars.charles-stain/eventbus "1.4"]
                  [org.clojars.charles-stain/j-ogg-oggd "3.0"]

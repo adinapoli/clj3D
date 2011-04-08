@@ -27,7 +27,6 @@
 
 
 (deftest cat-test
-  (is (empty? (cat)))
   (is (= [] (cat [])))
   (is (= [1 2 3]) (cat [1 2 3]))
   (is (= [1 2 3 4 5 6]) (cat [1 2 3] [4 5 6]))
