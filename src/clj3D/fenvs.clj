@@ -246,15 +246,6 @@
       (.setMaterial (default-material)))))
 
 
-(defn merge-all
-
-  [geometries]
-  (let [out-mesh (Mesh.)]
-    (GeometryBatchFactory/mergeGeometries geometries out-mesh)
-    (doto (Geometry. "structured" out-mesh)
-      (.setMaterial (default-material)))))
-
-
 ;; i.e the original STRUCT from Plasm
 (defn struct2
   "Merge all the input given meshs into a single one.
@@ -280,9 +271,12 @@
 
 
 (defn mknode
+  "It takes a list or an undefined number of geometries and put them into
+   a single node. Materials are preserverd."
   [& objs]
-  (let [new-node (Node. "node")]
-    (doseq [geom objs] (.attachChild new-node geom))
+  (let [flattened-args (flatten objs)
+	new-node (Node. "node")]
+    (doseq [geom flattened-args] (.attachChild new-node geom))
     new-node))
 
 
@@ -486,24 +480,6 @@
       (.setMaterial (default-material)))))
 
 
-(defhigh mkpol
-  "Mk polyedra."
-  [vertices dim]
-
-  (cond-match
-
-   [0 dim]
-   (println "TODO")
-
-   [1 dim]
-   (let [vl1 (butlast vertices)
-	 vl2 (next vertices)]
-     (struct2 (map #(line %1 %2) vl1 vl2)))
-   
-
-   [? dim] (println "TODO")))
-
-
 (defn load-obj
   "Load an .obj file and makes it available for rendering.
    Remember to load a single model with this function. For
@@ -513,3 +489,32 @@
   (let [imported-model ^Geometry (.loadModel asset-manager filename)]
     (doto imported-model
       (.setMaterial (default-material)))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Other operations
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(defhigh mkpol
+  "Mk polyedra.
+
+   Vertices is a list of vertices, and dim is a keyword
+   representing the dimension of the shape been created.
+   Legal values for dim: :0 , :1, :2."
+  [vertices dim]
+
+  (cond-match
+
+   [:0 dim]
+   (let [result (struct2 (map #(line %1 %2) (butlast vertices) (next vertices)))]
+     (skeleton 0 result))
+
+   [:1 dim]
+   (doto (struct2 (map #(line %1 %2) (butlast vertices) (next vertices)))
+     (.setMaterial (unlit-material)))
+   
+
+   [? dim] (println "TODO")))
