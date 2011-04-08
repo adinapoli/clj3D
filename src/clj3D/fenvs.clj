@@ -429,6 +429,12 @@
   (into [] (map #(reduce - %1) (apply map vector args))))
 
 
+(defn meanpoint
+  [& args]
+  (let [coeff (/ 1.0 (count args))]
+    (vec (map #(* coeff %1) (apply vectsum args)))))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PRIMITIVES
 ;; NOTE: Apparently PLaSM and JMonkey use the same coordinate system, but in

@@ -107,3 +107,8 @@
 
 (deftest vectdiff-test
   (is (= [9 9 9] (vectdiff [10 11 12] [0 1 2] [1 1 1]))))
+
+
+(deftest meanpoint-test
+  (is (= [1.0 1.0 1.0] (meanpoint [0 0 0] [1 1 1] [2 2 2])))
+  (is (= [2.0 1.0 1.5] (meanpoint [3 0 0] [1 2 3]))))
