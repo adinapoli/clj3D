@@ -54,12 +54,18 @@
            `(def ~i ~(symbol (str ns "/" i))))))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Protocol definition for adding data structures
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defprotocol Addable
   (+ [t1 t2]))
 
 
 (extend-protocol Addable
 
+  Character
+  (+ [c1 c2] (str c1 c2))
+  
   String
   (+ [s1 s2] (str s1 s2))
 
@@ -175,6 +181,7 @@
   "Very naive implementation"
   [elem seq] (map #(concat %1 [elem]) seq))
 
+
 (defn distl
   "Very naive implementation"
   [elem seq] (map #(cons elem %1) seq))
@@ -207,6 +214,7 @@
   a sequence created applying the given functions to the input."
   [func-lst arg]
   (for [func func-lst] (func arg)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Graphics stuff.
@@ -264,7 +272,6 @@
 (defn- unlit-material []
   (doto (Material. asset-manager "Common/MatDefs/Misc/Unshaded.j3md")
     (.setColor "Color"  default-color)))
-
 
 
 (defhigh merge-geometries
@@ -388,6 +395,30 @@
 	  (.. getMaterial getAdditionalRenderState (setWireframe true)))
 
     [? dim] geom))
+
+
+(def n repeat)
+
+
+(defn nn
+  [times seq]
+  (repeat times (cat seq)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Vector related operations. A vector is seen not as mathematical entities, but
+;; is [x1 x2 .. xn]
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(defn vectsum
+  "It takes an arbitrary number of vector in input and returns
+  the vector [v1 v2 .. vn] where, example:
+  (vectsum [0 1] [2 1]) => [2 2]"
+  [& args]
+  (into [] (map cat (apply map vector args))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

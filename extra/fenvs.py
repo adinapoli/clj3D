@@ -28,12 +28,10 @@ def RAISE (f):
     return RAISE0
 
 
-def VECTSUM(vects):  return map(sum,zip(*vects))
 def VECTDIFF(vects): return map(lambda l: l[0]-sum(l[1:]),zip(*vects))
 
 if self_test: 
 	assert(VECTDIFF([[10,11,12],[0,1,2],[1,1,1]])==[9,9,9])
-	assert(VECTSUM([[10,11,12],[0,1,2],[1,1,1]])==[11,13,15])
 
 def IS_PLASM_POINT_2D (obj): 
 	return isinstance(obj, list) and (len(obj) == 2) 
@@ -284,68 +282,7 @@ S10 = SEL(10)
 if self_test: 
 	assert(S1([1,2,3])==1 and S2([1,2,3])==2)
 
-# ===================================================
-# PLASM  repeat operators 
-# ===================================================
 
-def N (n): 
-    """
-    N: Standard core of PyPLaSM
-    repetition operator. Returns the sequence with n repetitions of arg
-    (n::isintpos)(arg::tt) -> (isseq)
-    """
-    return lambda List: [List]*int(n)
-
-
-if self_test: 
-	assert(N(3)(10)==[10,10,10])
-
-def DIESIS (n): 
-    """
-    N: Standard core of PyPLaSM
-    repetition operator. Returns the sequence with n repetitions of arg
-    (n::isintpos)(arg::tt) -> (isseq)
-    """
-    return lambda List: [List]*int(n)
-
-
-if self_test: 
-	assert(DIESIS(3)(10)==[10,10,10])
-
-def NN (n): 
-    """
-    NN:   Standard core of PyPLaSM
-    sequence repetition operator. Returns the sequence CAT(N(seq))
-    (n::isintpos)(seq::tt) -> (isseq)
-    """
-    return lambda List: List*int(n)
-
-
-if self_test: 
-	assert(NN (3)([10])==[10,10,10])
-
-
-def DOUBLE_DIESIS (n): 
-    """
-    NN:   Standard core of PyPLaSM
-    sequence repetition operator. Returns the sequence CAT(N(seq))
-    (n::isintpos)(seq::tt) -> (isseq)
-    """
-    return lambda List: List*int(n)
-
-
-
-if self_test: 
-	assert(DOUBLE_DIESIS  (3)([10])==[10,10,10])
-
-
-
-# ===================================================
-# Curryfing function 
-# ===================================================
-
-def C (fun):
-    return lambda arg1: lambda arg2: fun([arg1,arg2])
 
 # ===================================================
 # Miscellanea (1/3) of "standard" functions 

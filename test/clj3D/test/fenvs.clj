@@ -33,7 +33,9 @@
   (is (= [1 2 3 4]) (cat [1 2] '(3 4)))
   (is (= [1 2 3 4 5 6]) (cat [1 2] '(3 4) [5 6]))
   (is (= [1 2 3 4 8 8]) (cat [1 2] '(3 4) '(8 8)))
-  (is (= [1 2 3 4 8 8 9 8]) (cat [1 2] '(3 4) [8 8] '(9 8))))
+  (is (= [1 2 3 4 8 8 9 8]) (cat [1 2] '(3 4) [8 8] '(9 8)))
+  (is (= [1 2 3 4] (cat [[1 2] [3 4]])))
+  (is (= ["a" "very" "nested" "list"] (cat (cat [[["a" "very"] ["nested" "list"]]])))))
 
 
 (deftest id-test
@@ -60,6 +62,16 @@
   (is (= [[0 0 9] [1 1 9] [2 2 9]] (distr 9 [[0 0] [1 1] [2 2]]))))
 
 
+(deftest insl-test
+  (is (= -4 (insl #(- %1 %2) [1 2 3])))
+  (is (= 0 (insl #(- %1 %2) [1 2 -1]))))
+
+
+(deftest insr-test
+  (is (= 2 (insr #(- %1 %2) [1 2 3])))
+  (is (= -2 (insr #(- %1 %2) [1 2 -1]))))
+
+
 (deftest aa-test
   (is (function? (aa #(* %1 %1))))
   (is (= [1 4 9] ((aa #(* %1 %1)) [1 2 3])))
@@ -77,3 +89,17 @@
     (is (= 4.0 (.getX ^Vector3f v1)))
     (is (= 8.0 (.getY ^Vector3f v1)))
     (is (= 2.0 (.getZ ^Vector3f v1)))))
+
+
+(deftest n-test
+  (is (= '(10 10 10) (n 3 10))))
+
+
+(deftest nn-test
+  (is (= '(10 10 10) (nn 3 [10]))))
+
+
+(deftest vectsum-test
+  (is (= [8 20 7] (vectsum [0 1 1] [2 2 2] [4 5 2] [2 12 2])))
+  (is (= [0 0] (vectsum [0 1] [1 0] [-1 -1])))
+  (is (= [9 9 9] (vectsum [10 11 12] [0 1 2] [1 1 1]))))
