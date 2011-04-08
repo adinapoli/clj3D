@@ -22,8 +22,12 @@ CAD Group at the Universities "La Sapienza" and "Roma Tre". You can have both. R
 
 ..Clj3D is easy to start with
 -----------------------------
-No external dependencies, no modules to install. Just a single jar. Import it into a
-Leiningen project and you are ready to go. Displaying something is dead-easy:
+No external dependencies, no modules to install. Just a single jar:
+::
+
+[org.clojars.charles-stain/clj3d "0.0.3"]
+
+Import it into a Leiningen project and you are ready to go. Displaying something is dead-easy:
 ::
 
     (use '(clj3D fenvs viewer) :reload)

@@ -516,5 +516,7 @@
    (doto (struct2 (map #(line %1 %2) (butlast vertices) (next vertices)))
      (.setMaterial (unlit-material)))
    
-
-   [? dim] (println "TODO")))
+   [:2 dim]
+   (println "TODO")
+   
+   [? dim] (throw (IllegalArgumentException. (str "mkpol: " dim " is not a valid dimension.")))))

@@ -1,4 +1,4 @@
-(defproject clj3D "0.0.2"
+(defproject clj3D "0.0.3"
   :description "The first Clojure 3D Library"
   
   :dependencies [[org.clojure/clojure "1.2.0"]
