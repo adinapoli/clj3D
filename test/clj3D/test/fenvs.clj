@@ -112,3 +112,9 @@
 (deftest meanpoint-test
   (is (= [1.0 1.0 1.0] (meanpoint [0 0 0] [1 1 1] [2 2 2])))
   (is (= [2.0 1.0 1.5] (meanpoint [3 0 0] [1 2 3]))))
+
+
+(deftest div-test
+  (is (= 1.0 (div 10 5 2)))
+  (is (= 1.0 (div 10 2 5)))
+  (is (= 5.0 (div 20 2 2))))

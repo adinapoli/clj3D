@@ -1,24 +1,3 @@
-(ns clj3D.fenvs
-  (:use
-    [matchure]
-    [clj3D curry]
-    [clojure.contrib.def :only [defalias]])
-  (:refer-clojure :rename {+ core-+})
-  (:require
-    [clojure.contrib.generic.math-functions :as cl-math]
-    [incanter.core :as ictr-core]
-    [incanter.charts :as ictr-charts])
-  (:import
-    [com.jme3.math Vector3f Vector2f ColorRGBA Quaternion]
-    [com.jme3.asset AssetManager]
-    [com.jme3.system JmeSystem]
-    [com.jme3.material Material]
-    [com.jme3.scene.shape Box Line Sphere Cylinder Torus Quad]
-    [com.jme3.scene Node Geometry Mesh Mesh$Mode VertexBuffer VertexBuffer$Type]
-    [jme3tools.optimize GeometryBatchFactory]
-    [com.jme3.asset.plugins FileLocator]))
-
-
 ;; Copyright (c) 2011 Alfredo Di Napoli, https://github.com/CharlesStain/clj3D
 
 ;; Permission is hereby granted, free of charge, to any person obtaining
@@ -41,6 +20,26 @@
 ;; WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+(ns clj3D.fenvs
+  (:use
+    [matchure]
+    [clj3D curry]
+    [clojure.contrib.def :only [defalias]])
+  (:refer-clojure :rename {+ core-+})
+  (:require
+    [clojure.contrib.generic.math-functions :as cl-math]
+    [incanter.core :as ictr-core]
+    [incanter.charts :as ictr-charts])
+  (:import
+    [com.jme3.math Vector3f Vector2f ColorRGBA Quaternion]
+    [com.jme3.asset AssetManager]
+    [com.jme3.system JmeSystem]
+    [com.jme3.material Material]
+    [com.jme3.scene.shape Box Line Sphere Cylinder Torus Quad]
+    [com.jme3.scene Node Geometry Mesh Mesh$Mode VertexBuffer VertexBuffer$Type]
+    [jme3tools.optimize GeometryBatchFactory]
+    [com.jme3.asset.plugins FileLocator]))
+
 
 ;;For performance tweaking. Just ignore this.
 (set! *warn-on-reflection* true)
@@ -55,7 +54,9 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Protocol definition for adding data structures
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defprotocol Addable
   (+ [t1 t2]))
@@ -216,6 +217,13 @@
   (for [func func-lst] (func arg)))
 
 
+(def len count)
+
+(defn div
+  [& args]
+  (reduce #(/ %1 (float %2)) args))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Graphics stuff.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -283,6 +291,11 @@
       (.setMaterial (default-material)))))
 
 
+(extend-protocol Addable
+  Geometry
+  (+ [g1 g2] (merge-geometries g1 g2)))
+
+
 ;; i.e the original STRUCT from Plasm
 (defn struct2
   "Merge all the input given meshs into a single one.
@@ -315,6 +328,12 @@
 	new-node (Node. "node")]
     (doseq [geom flattened-args] (.attachChild new-node geom))
     new-node))
+
+
+(defn attach
+  "Attach a child to the given node."
+  [node child]
+  (.attachChild node child))
 
 
 (defn- jvector
@@ -578,7 +597,10 @@
 
    Vertices is a list of vertices, and dim is a keyword
    representing the dimension of the shape been created.
-   Legal values for dim: :0 , :1, :2."
+   Legal values for dim: :0 , :1, :2.
+   :0 -> Returns a 0 skeleton of the given points.
+   :1 -> Returns a 1D representation of the given points.
+   :2 -> Returns a 2D representation of the given points (for now only convex 'r supported)"
   [vertices dim]
 
   (cond-match
@@ -592,6 +614,12 @@
      (.setMaterial (unlit-material)))
    
    [:2 dim]
-   (println "TODO")
+   (let [start (first vertices)
+	 vertices (next vertices)
+	 size (count vertices)]
+     (doto (struct2 (map (fn [[x y z]] (triangle x y z))
+			 (map vector
+			      (repeat size start) (butlast vertices) (next vertices))))
+       (.setMaterial (default-material))))
    
    [? dim] (throw (IllegalArgumentException. (str "mkpol: " dim " is not a valid dimension.")))))
