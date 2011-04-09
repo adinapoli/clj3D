@@ -73,4 +73,4 @@ License
 
 Copyright (C) 2011 Alfredo Di Napoli
 
-Distributed under the MIT License.
+Distributed under the MIT License. JMonkey3 is released under the BSD License. See Wiki.
