@@ -219,6 +219,7 @@
 
 (def len count)
 
+
 (defn div
   [& args]
   (reduce #(/ %1 (float %2)) args))
@@ -282,12 +283,20 @@
     (.setColor "Color"  default-color)))
 
 
+(defn- optimize
+  "Optimize a Spatial. Internal use."
+  [spatial]
+  (doto (.getChild ^Node (GeometryBatchFactory/optimize spatial) 0)
+    (.setName "structured")))
+
+
 (defhigh merge-geometries
 
   [geom1 geom2]
   (let [out-mesh (Mesh.)]
     (GeometryBatchFactory/mergeGeometries [geom1 geom2] out-mesh)
     (doto (Geometry. "structured" out-mesh)
+      (optimize)
       (.setMaterial (default-material)))))
 
 
@@ -314,7 +323,7 @@
         rev-seq (reverse flattened-args)]
     (reduce (fn [x y]
       (cond-match
-        [[com.jme3.scene.Geometry com.jme3.scene.Geometry] [x y]] (merge-geometries x y)
+        [[com.jme3.scene.Geometry com.jme3.scene.Geometry] [x y]] (+ x y)
         [[com.jme3.scene.Geometry ?func] [x y]] (func x)
         [[?func com.jme3.scene.Geometry] [x y]] (func x)
         [? [x y]] (throw (IllegalArgumentException. "Invalid input for struct")))) rev-seq)))
@@ -330,9 +339,9 @@
     new-node))
 
 
-(defn attach
+(defhigh attach
   "Attach a child to the given node."
-  [node child]
+  [^Node node child]
   (.attachChild node child))
 
 
@@ -419,7 +428,7 @@
 (def n repeat)
 
 
-(defn nn
+(defhigh nn
   [times seq]
   (repeat times (cat seq)))
 
@@ -550,8 +559,11 @@
 (defn triangle
   "Returns a new 2D triangle in with vertexes v1 v2 v3."
   [v1 v2 v3]
-  (let [triangle-mesh (Mesh.)
-        vertices (float-array (flatten [v1 0 v2 0 v3 0]))
+  (let [v1 (when (= 2 (count v1)) (conj (vec v1) 0))
+	v2 (when (= 2 (count v2)) (conj (vec v2) 0))
+	v3 (when (= 2 (count v3)) (conj (vec v3) 0))
+	triangle-mesh (Mesh.)
+        vertices (float-array (flatten [v1 v2 v3]))
         tex-cord (float-array [0 0 1 0 0 1])
         indexes (int-array [2 0 1 1 0 2])
         normals (float-array (flatten (repeat 3 [0 0 1])))]
@@ -564,6 +576,30 @@
       (.updateBound))
 
     (doto (Geometry. "triangle" triangle-mesh)
+      (.setMaterial (default-material)))))
+
+
+(defn trianglestripe
+  "Returns a new 2D trianglestripe."
+  [& points]
+  (let [stripe-mesh (Mesh.)
+	points (for [pt points] (if (= 2 (count pt)) (conj (vec pt) 0) pt))
+	size (count points)
+        vertices (float-array (flatten points))
+        tex-cord (float-array (flatten (repeat size [0 0 1])))
+        indexes (int-array
+		 (flatten
+		  (map vector (repeat size 0) (range 1 (dec size)) (range 2 size))))
+        normals (float-array (flatten (repeat (count points) [0 0 1])))]
+
+    (doto ^Mesh stripe-mesh
+      (.setBuffer VertexBuffer$Type/Position 3 vertices)
+      (.setBuffer VertexBuffer$Type/Normal 3 normals)
+      (.setBuffer VertexBuffer$Type/TexCoord 2 tex-cord)
+      (.setBuffer VertexBuffer$Type/Index 1 indexes)
+      (.updateBound))
+
+    (doto (Geometry. "stripe" stripe-mesh)
       (.setMaterial (default-material)))))
 
 
