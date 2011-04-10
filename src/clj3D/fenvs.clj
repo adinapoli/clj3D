@@ -587,9 +587,9 @@
 	size (count points)
         vertices (float-array (flatten points))
         tex-cord (float-array (flatten (repeat size [0 0 1])))
-        indexes (int-array
-		 (flatten
-		  (map vector (repeat size 0) (range 1 (dec size)) (range 2 size))))
+	idx-triples (flatten
+		     (map vector (repeat size 0) (range 1 (dec size)) (range 2 size)))
+        indexes (int-array (+ idx-triples (reverse idx-triples)))
         normals (float-array (flatten (repeat (count points) [0 0 1])))]
 
     (doto ^Mesh stripe-mesh
@@ -650,12 +650,7 @@
      (.setMaterial (unlit-material)))
    
    [:2 dim]
-   (let [start (first vertices)
-	 vertices (next vertices)
-	 size (count vertices)]
-     (doto (struct2 (map (fn [[x y z]] (triangle x y z))
-			 (map vector
-			      (repeat size start) (butlast vertices) (next vertices))))
-       (.setMaterial (default-material))))
+   (doto (apply trianglestripe vertices)
+     (.setMaterial (default-material)))
    
    [? dim] (throw (IllegalArgumentException. (str "mkpol: " dim " is not a valid dimension.")))))
