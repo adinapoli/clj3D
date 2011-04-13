@@ -132,7 +132,9 @@
     (throw (ClassCastException. "Argument is not a valid character."))))
 
 
-(def power cl-math/pow)
+(defhigh pow
+  [base exp]
+  (cl-math/pow base exp))
 
 
 (defn fact [n]
@@ -178,12 +180,12 @@
 (def tt (k true))
 
 
-(defn distr
+(defhigh distr
   "Very naive implementation"
   [elem seq] (map #(concat %1 [elem]) seq))
 
 
-(defn distl
+(defhigh distl
   "Very naive implementation"
   [elem seq] (map #(cons elem %1) seq))
 
@@ -455,6 +457,11 @@
   (vectsum [0 1] [2 1]) => [-2 0]"
   [& args]
   (into [] (map #(reduce - %1) (apply map vector args))))
+
+
+(defn vectnorm
+  [vector]
+  (sqrt (reduce + (map (pow 2) vector))))
 
 
 (defn meanpoint
