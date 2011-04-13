@@ -20,7 +20,7 @@ You should consider using Clj3D for a few reasons..
 Clj3D is massively based on the excellent `jMonkeyEngine <http://jmonkeyengine.org/>`_ 
 and it tooks the best of it. `PLaSM <http://www.dia.uniroma3.it/~paoluzzi/plasm502/>`_
 is a "design language" for geometric and solid parametric design, developed by the 
-CAD Group at the Universities "La Sapienza" and "Roma Tre". You can have both. Reloaded.\
+CAD Group at the Universities "La Sapienza" and "Roma Tre".\
 
 ..Clj3D is easy to start with
 -----------------------------
