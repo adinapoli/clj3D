@@ -86,7 +86,7 @@
 
 
 (pull cl-math (sin asin cos acos tan atan atan2 abs ceil floor sqrt exp))
-(pull ictr-core (matrix))
+(pull ictr-core (matrix to-vect vectorize trace trans))
 (def inv ictr-core/solve)
 
 
@@ -661,3 +661,8 @@
      (.setMaterial (default-material)))
    
    [? dim] (throw (IllegalArgumentException. (str "mkpol: " dim " is not a valid dimension.")))))
+
+
+(defn quote
+  [& dash]
+  (println "TODO"))

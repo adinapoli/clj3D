@@ -112,9 +112,9 @@ public abstract class Viewer extends Application {
             }
             
             else if (name.equals("SIMPLEAPP_ResetPos")) {
-                cam.setLocation(new Vector3f(0, 0, 10));
-                cam.setRotation(new Quaternion(0, 1, 0, 0));
-                cam.setDirection(new Vector3f(0,0,-1));
+                cam.setRotation(new Quaternion(0,1,0,0));
+                cam.setLocation(new Vector3f(3, 3, 3));
+                cam.lookAt(new Vector3f(0,0,0), new Vector3f(0,0,1));
             }
         }
     }
@@ -262,7 +262,11 @@ public abstract class Viewer extends Application {
         viewPort.attachScene(rootNode);
         guiViewPort.attachScene(guiNode);
         createAxis();
+        
         cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 0.1f, 500f);
+        cam.setRotation(new Quaternion(0,1,0,0));
+        cam.setLocation(new Vector3f(3, 3, 3));
+        cam.lookAt(new Vector3f(0,0,0), new Vector3f(0,0,1));
 
         if (inputManager != null) {
             flyCam = new FlyByCamera(cam);
@@ -284,6 +288,7 @@ public abstract class Viewer extends Application {
         
         // call user code
         simpleInitApp();
+        this.getFlyByCamera().setUpVector(new Vector3f(0,0,1));
     }
 
     @Override
