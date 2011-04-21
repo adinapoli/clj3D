@@ -21,6 +21,7 @@
 
 
 (ns clj3D.fenvs
+  (:refer-clojure :rename {+ core-+})
   (:use
     [matchure]
     [clj3D curry math])
@@ -30,7 +31,7 @@
     [com.jme3.system JmeSystem]
     [com.jme3.material Material]
     [com.jme3.scene.shape Box Line Sphere Cylinder Torus Quad]
-    [com.jme3.scene Node Geometry Mesh Mesh$Mode VertexBuffer VertexBuffer$Type]
+    [com.jme3.scene Node Geometry Spatial Mesh Mesh$Mode VertexBuffer VertexBuffer$Type]
     [jme3tools.optimize GeometryBatchFactory]
     [com.jme3.asset.plugins FileLocator]))
 
@@ -63,26 +64,6 @@
 (def ^{:private true} default-color (ColorRGBA/LightGray))
 
 
-(defhigh color
-  "Change the color of the shape, then return the shape itself."
-  [color-symbol ^Geometry object]
-  (let [material (.getMaterial object)]
-    (.setColor material "Ambient" (get colors color-symbol default-color))
-    (.setColor material "Diffuse" (get colors color-symbol default-color))
-    object))
-
-
-(def ^{:private true} asset-manager
-     (JmeSystem/newAssetManager
-      (.getResource (.getContextClassLoader (Thread/currentThread))
-		    "com/jme3/asset/Desktop.cfg")))
-
-
-(.registerLocator ^AssetManager asset-manager
-		  (str (. System getProperty "user.dir") "/models")
-		  "com.jme3.asset.plugins.FileLocator")
-
-
 (defn- default-material []
   (doto (Material. asset-manager "Common/MatDefs/Light/Lighting.j3md")
     (.setBoolean "UseMaterialColors" true)
@@ -97,26 +78,54 @@
     (.setColor "Color"  default-color)))
 
 
+(defn- colored-material
+  [color-keyword]
+  (doto (Material. asset-manager "Common/MatDefs/Light/Lighting.j3md")
+    (.setBoolean "UseMaterialColors" true)
+    (.setColor "Ambient"  (get colors :black))
+    (.setColor "Diffuse" (get colors color-keyword))
+    (.setColor "Specular" (get colors :white))
+    (.setFloat "Shininess" 10)))
+
+
+(defhigh color
+  "Change the color of the shape, then return the spatial itself."
+  [color-symbol ^Spatial object]
+  (.setMaterial object (colored-material color-symbol))
+  object)
+
+
+(def ^{:private true} asset-manager
+     (JmeSystem/newAssetManager
+      (.getResource (.getContextClassLoader (Thread/currentThread))
+		    "com/jme3/asset/Desktop.cfg")))
+
+
+(.registerLocator ^AssetManager asset-manager
+		  (str (. System getProperty "user.dir") "/models")
+		  "com.jme3.asset.plugins.FileLocator")
+
+
 (defn- optimize
   "Optimize a Spatial. Internal use."
   [spatial]
-  (doto (.getChild ^Node (GeometryBatchFactory/optimize spatial) 0)
+  (doto ^Node (GeometryBatchFactory/optimize spatial)
     (.setName "structured")))
 
 
-(defhigh merge-geometries
-
-  [geom1 geom2]
-  (let [out-mesh (Mesh.)]
-    (GeometryBatchFactory/mergeGeometries [geom1 geom2] out-mesh)
-    (doto (Geometry. "structured" out-mesh)
-      (optimize)
-      (.setMaterial (default-material)))))
+(defn mknode
+  "It takes a list or an undefined number of geometries and put them into
+   a single node. Materials are preserverd."
+  [& objs]
+  (let [flattened-args (flatten objs)
+	new-node (Node. "node")]
+    (doseq [geom flattened-args] (.attachChild new-node geom))
+    (optimize new-node)))
 
 
 (extend-protocol Addable
-  Geometry
-  (+ [g1 g2] (merge-geometries g1 g2)))
+  Node
+  (+ [nd1 nd2] (mknode nd1 nd2)))
 
 
 ;; i.e the original STRUCT from Plasm
@@ -136,21 +145,11 @@
   (let [flattened-args (flatten args)
         rev-seq (reverse flattened-args)]
     (reduce (fn [x y]
-      (cond-match
-        [[com.jme3.scene.Geometry com.jme3.scene.Geometry] [x y]] (+ x y)
-        [[com.jme3.scene.Geometry ?func] [x y]] (func x)
-        [[?func com.jme3.scene.Geometry] [x y]] (func x)
-        [? [x y]] (throw (IllegalArgumentException. "Invalid input for struct")))) rev-seq)))
-
-
-(defn mknode
-  "It takes a list or an undefined number of geometries and put them into
-   a single node. Materials are preserverd."
-  [& objs]
-  (let [flattened-args (flatten objs)
-	new-node (Node. "node")]
-    (doseq [geom flattened-args] (.attachChild new-node geom))
-    new-node))
+	      (cond-match
+	       [[com.jme3.scene.Spatial com.jme3.scene.Spatial] [x y]] (+ x y)
+	       [[com.jme3.scene.Spatial ?func] [x y]] (func x)
+	       [[?func com.jme3.scene.Spatial] [x y]] (func x)
+	       [? [x y]] (throw (IllegalArgumentException. "Invalid input for struct")))) rev-seq)))
 
 
 (defhigh attach
@@ -165,7 +164,7 @@
   (t 1 2.0 (cube 1)) -> move the cube from <0,0,0> to <2.0,0,0>
   (t [1 2] [3.0 2.0] (cube 1) -> move the cube to <3.0,2.0,0>"
   [axes value geom]
-  (doto ^Geometry geom
+  (doto ^Node geom
     (.move (jvector axes value))))
 
 
@@ -179,12 +178,12 @@
 
     [java.lang.Integer axes]
     (let [av-map (hash-map (dec axes) value)]
-      (doto ^Geometry geom
+      (doto ^Node geom
       (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))))
 
     [clojure.lang.IPersistentCollection axes]
     (let [av-map (reduce into (map hash-map (map dec axes) value))]
-      (doto ^Geometry geom
+      (doto ^Node geom
       (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))))
 
     [? axes] (throw (IllegalArgumentException. "Invalid input for scale"))))
@@ -195,7 +194,7 @@
   [axis rotation geom]
   (let [quaternion (Quaternion.)]
     (.fromAngleAxis quaternion rotation (jvector axis 1.0))
-    (doto ^Geometry geom
+    (doto ^Node geom
       (.setLocalRotation quaternion))))
 
 
@@ -235,16 +234,16 @@
         box (Box. (Vector3f. px py pz) px py pz)
         cuboid (Geometry. "cuboid" box)]
     (.setMaterial cuboid (default-material))
-    cuboid))
+    (mknode cuboid)))
 
 
 (defn cube
   "Returns a new n*n*n cube with bottom-left corner in (0,0,0)"
   [side]
-  (cuboid side side side))
+  (mknode (cuboid side side side)))
 
 
-(defn hexaedron [] (cube 1))
+(defn hexaedron [] (mknode (cube 1)))
 
 
 (defn line
@@ -255,7 +254,7 @@
 	   line-mesh (Line. (Vector3f. x1 y1 z1) (Vector3f. x2 y2 z2))
 	   line-geom (Geometry. "line" line-mesh)]
        (.setMaterial line-geom (unlit-material))
-       line-geom))
+       (mknode line-geom)))
 
 
 (defn sphere
@@ -267,13 +266,13 @@
      (let [sphere-mesh (Sphere. 50 50 radius)
 	   sphere (Geometry. "sphere" sphere-mesh)]
        (.setMaterial sphere (default-material))
-       sphere))
+       (mknode sphere)))
 
   ([radius z-seg r-seg]
      (let [sphere-mesh (Sphere. z-seg r-seg radius)
 	   sphere (Geometry. "sphere" sphere-mesh)]
        (.setMaterial sphere (default-material))
-       sphere)))
+       (mknode sphere))))
 
 
 (defn cylinder
@@ -285,15 +284,17 @@
   (let [cylinder-mesh (Cylinder. 50 50 radius height true)
          cylinder (Geometry. "cylinder" cylinder-mesh)]
     (t 3 (/ height 2.0) cylinder)
-    (doto ^Geometry cylinder
-      (.setMaterial (default-material)))))
+    (mknode
+     (doto ^Geometry cylinder
+      (.setMaterial (default-material))))))
 
   ([radius height z-seg r-seg]
   (let [cylinder-mesh (Cylinder. z-seg r-seg radius height true)
          cylinder (Geometry. "cylinder" cylinder-mesh)]
     (t 3 (/ height 2.0) cylinder)
-    (doto ^Geometry cylinder
-      (.setMaterial (default-material))))))
+    (mknode
+     (doto ^Geometry cylinder
+      (.setMaterial (default-material)))))))
 
 
 (defn torus
@@ -304,14 +305,16 @@
   ([r1 r2]
   (let [torus-mesh (Torus. 50 50 r1 r2)
          torus (Geometry. "torus" torus-mesh)]
-    (doto torus
-      (.setMaterial (default-material)))))
+    (mknode
+     (doto torus
+      (.setMaterial (default-material))))))
 
   ([r1 r2 z-seg r-seg]
   (let [torus-mesh (Torus. z-seg r-seg r1 r2)
          torus (Geometry. "torus" torus-mesh)]
-    (doto torus
-      (.setMaterial (default-material))))))
+    (mknode
+     (doto torus
+      (.setMaterial (default-material)))))))
 
 
 (defn triangle
@@ -333,8 +336,9 @@
       (.setBuffer VertexBuffer$Type/Index 1 indexes)
       (.updateBound))
 
-    (doto (Geometry. "triangle" triangle-mesh)
-      (.setMaterial (default-material)))))
+    (mknode
+     (doto (Geometry. "triangle" triangle-mesh)
+      (.setMaterial (default-material))))))
 
 
 (defn trianglestripe
@@ -357,15 +361,17 @@
       (.setBuffer VertexBuffer$Type/Index 1 indexes)
       (.updateBound))
 
-    (doto (Geometry. "stripe" stripe-mesh)
-      (.setMaterial (default-material)))))
+    (mknode
+     (doto (Geometry. "stripe" stripe-mesh)
+      (.setMaterial (default-material))))))
 
 
 (defn quad
   [width height]
   (let [quad-mesh (Quad. width height)]
-    (doto (Geometry. "quad" quad-mesh)
-      (.setMaterial (default-material)))))
+    (mknode
+     (doto (Geometry. "quad" quad-mesh)
+      (.setMaterial (default-material))))))
 
 
 (defn load-obj
@@ -375,8 +381,9 @@
    meshes into a single one and triangulate the resulting object."
   [filename]
   (let [imported-model ^Geometry (.loadModel asset-manager filename)]
-    (doto imported-model
-      (.setMaterial (default-material)))))
+    (mknode
+     (doto imported-model
+      (.setMaterial (default-material))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

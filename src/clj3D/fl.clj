@@ -21,6 +21,7 @@
 
 
 (ns clj3D.fl
+  (:refer-clojure :rename {+ core-+})
   (:use
     [matchure]
     [clj3D curry math]

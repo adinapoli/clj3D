@@ -21,11 +21,10 @@
 
 
 (ns clj3D.math
+  (:refer-clojure :rename {+ core-+})
   (:use
     [matchure]
-    [clj3D curry]
-    [clojure.contrib.def :only [defalias]])
-  (:refer-clojure :rename {+ core-+})
+    [clj3D curry])
   (:require
     [clojure.contrib.generic.math-functions :as cl-math]
     [incanter.core :as ictr-core]
@@ -36,24 +35,6 @@
 
 ;;For performance tweaking. Just ignore this.
 (set! *warn-on-reflection* true)
-
-
-;; Expose some function into a namespace.
-;; http://stackoverflow.com/questions/4732134/can-i-refer-another-
-;; namespace-and-expose-its-functions-as-public-for-the-current
-(defmacro pull [ns vlist]
-  `(do ~@(for [i vlist]
-           `(def ~i ~(symbol (str ns "/" i))))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Imported functions
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-(pull cl-math (sin asin cos acos tan atan atan2 abs ceil floor sqrt exp))
-(pull ictr-core (matrix to-vect vectorize trace trans))
-(def inv ictr-core/solve)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -81,6 +62,25 @@
 
   Number 
   (+ [n1 n2] (core-+ n1 n2)))
+
+
+
+;; Expose some function into a namespace.
+;; http://stackoverflow.com/questions/4732134/can-i-refer-another-
+;; namespace-and-expose-its-functions-as-public-for-the-current
+(defmacro pull [ns vlist]
+  `(do ~@(for [i vlist]
+           `(def ~i ~(symbol (str ns "/" i))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Imported functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(pull cl-math (sin asin cos acos tan atan atan2 abs ceil floor sqrt exp))
+(pull ictr-core (matrix to-vect vectorize trace trans))
+(def inv ictr-core/solve)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

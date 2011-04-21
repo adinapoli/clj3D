@@ -1,4 +1,5 @@
 (ns clj3D.viewer
+  (:refer-clojure :rename {+ core-+})
   (:use
     [clj3D.math :only [pull]])
   (:require
