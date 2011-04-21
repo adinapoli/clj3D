@@ -35,6 +35,7 @@ import com.jme3.app.Application;
 import com.jme3.app.StatsView;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.input.FlyByCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -189,36 +190,12 @@ public abstract class Viewer extends Application {
     public void setShowSettings(boolean showSettings) {
         this.showSettings = showSettings;
     }
-
-    /**
-     * Attaches FPS statistics to guiNode and displays it on the screen.
-     *
-     */
-    public void loadFPSText() {
-        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        fpsText = new BitmapText(guiFont, false);
-        fpsText.setLocalTranslation(0, fpsText.getLineHeight(), 0);
-        fpsText.setText("Frames per second");
-        guiNode.attachChild(fpsText);
-    }
-
-    /**
-     * Attaches Statistics View to guiNode and displays it on the screen
-     * above FPS statistics line.
-     *
-     */
-    public void loadStatsView() {
-        statsView = new StatsView("Statistics View", assetManager, renderer.getStatistics());
-//         move it up so it appears above fps text
-        statsView.setLocalTranslation(0, fpsText.getLineHeight(), 0);
-        guiNode.attachChild(statsView);
-    }
     
     
     public void createAxis(){
-        	Line x = new Line(new Vector3f(0,0,0), new Vector3f(1.0f,0,0));
-            Line y = new Line(new Vector3f(0,0,0), new Vector3f(0,1.0f,0));
-            Line z = new Line(new Vector3f(0,0,0), new Vector3f(0,0,1.0f));
+        	Line x = new Line(Vector3f.ZERO, Vector3f.UNIT_X);
+            Line y = new Line(Vector3f.ZERO, Vector3f.UNIT_Y);
+            Line z = new Line(Vector3f.ZERO, Vector3f.UNIT_Z);
 
             x.setLineWidth(3f);
             y.setLineWidth(3f);
@@ -257,20 +234,14 @@ public abstract class Viewer extends Application {
 
         guiNode.setQueueBucket(Bucket.Gui);
         guiNode.setCullHint(CullHint.Never);
-        //loadFPSText();
-        //loadStatsView();
         viewPort.attachScene(rootNode);
         guiViewPort.attachScene(guiNode);
         createAxis();
         
-        cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 0.1f, 500f);
         cam.setRotation(new Quaternion(0,1,0,0));
-        cam.setLocation(new Vector3f(3, 3, 3));
-        cam.lookAt(new Vector3f(0,0,0), new Vector3f(0,0,1));
 
         if (inputManager != null) {
             flyCam = new FlyByCamera(cam);
-            flyCam.setMoveSpeed(2f);
             flyCam.registerWithInput(inputManager);
 
             if (context.getType() == Type.Display) {
@@ -288,7 +259,23 @@ public abstract class Viewer extends Application {
         
         // call user code
         simpleInitApp();
-        this.getFlyByCamera().setUpVector(new Vector3f(0,0,1));
+        this.getFlyByCamera().setUpVector(Vector3f.UNIT_Z);
+        cameraGuessBestPosition();
+    }
+    
+    private void cameraGuessBestPosition() {
+    	this.rootNode.setModelBound(new BoundingSphere());
+		float radius = ((BoundingSphere)this.rootNode.getWorldBound()).getRadius();
+		Vector3f center = ((BoundingSphere)this.rootNode.getWorldBound()).getCenter();
+		float cameraNewX = radius + radius/2;
+		float cameraNewZ = radius + radius/2;
+		float cameraOldY = this.cam.getLocation().y;
+
+		this.cam.setLocation(new Vector3f(cameraNewX, cameraOldY, cameraNewZ));
+		this.cam.lookAt(center, Vector3f.UNIT_Z);
+		this.flyCam.setMoveSpeed(radius);
+		this.cameraLight.setPosition(cam.getLocation());
+		cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 0.1f*radius, 500f*radius);
     }
 
     @Override
@@ -327,7 +314,7 @@ public abstract class Viewer extends Application {
     public abstract void simpleInitApp();
 
     public void simpleUpdate(float tpf) {
-    	viewPort.setBackgroundColor(ColorRGBA.Gray);
+    	viewPort.setBackgroundColor(new ColorRGBA(185/255.0f,211/255.0f,238/255.0f,1.0f));
     	cameraLight.setPosition(cam.getLocation());
     }
 
