@@ -1,7 +1,6 @@
 (ns clj3D.viewer
   (:use
-    [clj3D.fenvs :only [pull]]
-    [clojure.contrib.def :only [defalias]])
+    [clj3D.math :only [pull]])
   (:require
     [incanter.core :as ictr-core])
   (:import

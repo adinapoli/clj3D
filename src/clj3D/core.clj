@@ -1,4 +1,5 @@
 (ns clj3D.core
+  (:use [clj3D math fl fenvs viewer])
   (:gen-class :main true))
 
 

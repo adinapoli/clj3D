@@ -23,13 +23,7 @@
 (ns clj3D.fenvs
   (:use
     [matchure]
-    [clj3D curry]
-    [clojure.contrib.def :only [defalias]])
-  (:refer-clojure :rename {+ core-+})
-  (:require
-    [clojure.contrib.generic.math-functions :as cl-math]
-    [incanter.core :as ictr-core]
-    [incanter.charts :as ictr-charts])
+    [clj3D curry math])
   (:import
     [com.jme3.math Vector3f Vector2f ColorRGBA Quaternion]
     [com.jme3.asset AssetManager]
@@ -43,188 +37,6 @@
 
 ;;For performance tweaking. Just ignore this.
 (set! *warn-on-reflection* true)
-
-
-;; Expose some function into a namespace.
-;; http://stackoverflow.com/questions/4732134/can-i-refer-another-
-;; namespace-and-expose-its-functions-as-public-for-the-current
-(defmacro pull [ns vlist]
-  `(do ~@(for [i vlist]
-           `(def ~i ~(symbol (str ns "/" i))))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Protocol definition for adding data structures
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defprotocol Addable
-  (+ [t1 t2]))
-
-
-(extend-protocol Addable
-
-  Character
-  (+ [c1 c2] (str c1 c2))
-  
-  String
-  (+ [s1 s2] (str s1 s2))
-
-  clojure.lang.IPersistentVector
-  (+ [v1 v2] (into v1 v2)) 
-
-  clojure.lang.ISeq
-  (+ [s1 s2] (concat s1 s2)) 
-
-  Number 
-  (+ [n1 n2] (core-+ n1 n2))) 
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Imported functions
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-(pull cl-math (sin asin cos acos tan atan atan2 abs ceil floor sqrt exp))
-(pull ictr-core (matrix to-vect vectorize trace trans))
-(def inv ictr-core/solve)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Math functions
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-(def PI (Math/PI))
-
-
-(defn sinh
-  "Returns the hyperbolic sin of the argument x."
-  [x] (Math/sinh x))
-
-
-(defn cosh
-  "Returns the hyperbolic cos of the argument x."
-  [x] (Math/cosh x))
-
-
-(defn tanh
-  "Returns the hyperbolic tan of the argument x."
-  [x] (Math/tanh x))
-
-
-(def ln cl-math/log)
-
-
-(defn chr
-  "Coerce an int into the correspondent char value."
-  [x]
-  (if (integer? x)
-    (char x)
-    (throw (ClassCastException. "Argument is not a valid integer."))))
-
-
-(defn ord
-  "Coerce a character into the correspondent int value."
-  [x]
-  (if (char? x)
-    (int x)
-    (throw (ClassCastException. "Argument is not a valid character."))))
-
-
-(defhigh pow
-  [base exp]
-  (cl-math/pow base exp))
-
-
-(defn fact [n]
-  (if (zero? n) 1 (reduce * (cons 1 (range 1 (inc n))))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Mixed PLASM functions
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-(defn curry [func arg]
-  (partial func arg))
-
-
-(defn cat
-  "Similar to the orginal PLaSM one, but check this difference:
-  1) (cat x) where x is a single data structure (even nested) have the
-     same result of the original PLaSM CAT.
-     Example (cat [1 2]) => 3
-
-  2) (cat & args) where args is a list of args concat all arguments.
-     Example (cat [1 2] [3 4]) => [1 2 3 4]"
-  
-  ([arg] (if-not (empty? arg) (reduce #(+ %1 %2) arg) []))
-  ([e1 & args] (+ e1 (flatten args))))
-
-
-(defn id
-  "IDentity function. For any argument returns the argument"
-  [anyvalue] anyvalue)
-
-
-(defhigh k
-  "FL CONStant Function.
-  Simple usage:
-  (k 1) -> returns a partial function
-  ((k 1) 2) -> 1
-  (k 1 2) -> 1"
-  [k1 k2] k1)
-
-
-(def tt (k true))
-
-
-(defhigh distr
-  "Very naive implementation"
-  [elem seq] (map #(concat %1 [elem]) seq))
-
-
-(defhigh distl
-  "Very naive implementation"
-  [elem seq] (map #(cons elem %1) seq))
-
-
-(defhigh aa
-  "Like (map f seq)."
-  [f seq] (map f seq))
-
-
-(defhigh insl
-  "Like (reduce func seq) but high order."
-  [func seq]
-  (reduce func seq))
-
-
-(defhigh insr
-  "Like PLaSM original INSR. Beware, it's not the same
-   thing of (reduce func (reverse seq)!. It is equivalent
-   to the following:
-   Be f a function and [x1,x2,x3] a seq:
-   => (f x1 (f x2 x3)) and so on..."
-  [func seq]
-  (reduce #(func %2 %1) (reverse seq)))
-
-
-(defhigh cons2
-  "It's the PLaSM cons function.
-  It takes a sequence of functions and an input, and returns
-  a sequence created applying the given functions to the input."
-  [func-lst arg]
-  (for [func func-lst] (func arg)))
-
-
-(def len count)
-
-
-(defn div
-  [& args]
-  (reduce #(/ %1 (float %2)) args))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -347,24 +159,6 @@
   (.attachChild node child))
 
 
-(defn- jvector
-  "Returns a Vector3f given values and axis"
-  [axes value]
-  (cond-match
-    
-    [java.lang.Integer axes]
-    (doto (Vector3f.)
-      (.set (dec axes) value))
-
-    [clojure.lang.IPersistentCollection axes]
-    (let [result (Vector3f.)
-          av-vec (map vector axes value)]
-      (doseq [[a v] av-vec] (.set result (dec a) v))
-      result)
-
-    [? axes] (throw (IllegalArgumentException. "Invalid input for jvector"))))
-
-
 (defhigh t
   "Translate function. High order function.
   Usage:
@@ -425,49 +219,6 @@
 	  (.. getMaterial getAdditionalRenderState (setWireframe true)))
 
     [? dim] geom))
-
-
-(def n repeat)
-
-
-(defhigh nn
-  [times seq]
-  (repeat times (cat seq)))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Vector related operations. A vector is seen not as mathematical entities, but
-;; is [x1 x2 .. xn]
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-(defn vectsum
-  "It takes an arbitrary number of vector in input and returns
-  the vector [v1 v2 .. vn] where, example:
-  (vectsum [0 1] [2 1]) => [2 2]"
-  [& args]
-  (into [] (map #(reduce + %1) (apply map vector args))))
-
-
-(defn vectdiff
-  "It takes an arbitrary number of vector in input and returns
-  the vector [v1 v2 .. vn] where, example:
-  (vectsum [0 1] [2 1]) => [-2 0]"
-  [& args]
-  (into [] (map #(reduce - %1) (apply map vector args))))
-
-
-(defn vectnorm
-  [vector]
-  (sqrt (reduce + (map (pow 2) vector))))
-
-
-(defn meanpoint
-  [& args]
-  (let [coeff (/ 1.0 (count args))]
-    (vec (map #(* coeff %1) (apply vectsum args)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
