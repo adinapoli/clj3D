@@ -178,30 +178,24 @@
   (t 1 2.0 (cube 1)) -> move the cube from <0,0,0> to <2.0,0,0>
   (t [1 2] [3.0 2.0] (cube 1) -> move the cube to <3.0,2.0,0>"
   [axes value geom]
-  (doto ^Node geom
-    (.move (jvector axes value))))
+  (let [cloned (.clone geom)]
+      (doto ^Node cloned
+	    (.move (jvector axes value)))))
 
-
-(defhigh old-r
-  "Rotate function. High order function."
-  [axis rotation geom]
-  (let [quaternion (Quaternion.)]
-    (.fromAngleAxis quaternion rotation (jvector axis 1.0))
-    (doto ^Node geom
-	  (.setLocalRotation quaternion))))
 
 (defhigh r
   "Rotate function. High order function."
   [axis rotation spatial]
-  (let [rotation-pivot (Node.)
+  (let [cloned (.clone spatial)
+	rotation-pivot (Node.)
 	quaternion (Quaternion.)]
-    (.attachChild rotation-pivot spatial)
+    (.attachChild rotation-pivot cloned)
     (.setLocalTranslation rotation-pivot (Vector3f/ZERO))
     (.fromAngleAxis quaternion rotation (jvector axis 1.0))
     (.setLocalRotation rotation-pivot quaternion)
     (let [world-transform ^Transform (.getWorldTransform rotation-pivot)
-	  prev-transform ^Transform (.getLocalTransform ^Spatial spatial)]
-      (doto ^Spatial spatial
+	  prev-transform ^Transform (.getLocalTransform ^Spatial cloned)]
+      (doto ^Spatial cloned
 	(.setLocalTransform (.combineWithParent prev-transform world-transform))))))
 
 
@@ -211,27 +205,29 @@
   (s 1 0.5 (cube 1)) -> scale 50% of cube x-side
   (s [1 2] [0.5 0.7] (cube 1)) -> scale 50% x and 70% y."
   [axes value geom]
-  (cond-match
+  (let [cloned (.clone geom)]
+    (cond-match
 
-   [-1 value]
-   (cond
-    (= 1 axes) (r 3 (/ PI 2) geom)
-    (= 2 axes) (r 1 (/ PI 2) geom)
-    (= 3 axes) (r 2 (/ PI 2) geom)
-    :else (throw (IllegalArgumentException. "Can't mirror along given axis.")))
+     [-1 value]
+     (cond
+      ;;Rotation already clone the spatial, no need to clone further
+      (= 1 axes) (r 3 (/ PI 2) geom)
+      (= 2 axes) (r 1 (/ PI 2) geom)
+      (= 3 axes) (r 2 (/ PI 2) geom)
+      :else (throw (IllegalArgumentException. "Can't mirror along given axis.")))
 
-    [java.lang.Integer axes]
-    (let [av-map (hash-map (dec axes) value)]
-      (doto ^Node geom
-	    (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))))
+     [java.lang.Integer axes]
+     (let [av-map (hash-map (dec axes) value)]
+       (doto ^Node cloned
+	     (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))))
 
     
-    [clojure.lang.IPersistentCollection axes]
-    (let [av-map (reduce into (map hash-map (map dec axes) value))]
-      (doto ^Node geom
-	    (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))))
+     [clojure.lang.IPersistentCollection axes]
+     (let [av-map (reduce into (map hash-map (map dec axes) value))]
+       (doto ^Node cloned
+	     (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))))
 
-    [? axes] (throw (IllegalArgumentException. "Invalid input for scale"))))
+     [? axes] (throw (IllegalArgumentException. "Invalid input for scale")))))
 
 
 (defhigh skeleton
@@ -319,17 +315,15 @@
   ([radius height]
   (let [cylinder-mesh (Cylinder. 50 50 radius height true)
          cylinder (Geometry. "cylinder" cylinder-mesh)]
-    (t 3 (/ height 2.0) cylinder)
     (mknode
-     (doto ^Geometry cylinder
+     (doto ^Geometry (t 3 (/ height 2.0) cylinder)
 	   (.setMaterial (default-material))))))
 
   ([radius height z-seg r-seg]
   (let [cylinder-mesh (Cylinder. z-seg r-seg radius height true)
          cylinder (Geometry. "cylinder" cylinder-mesh)]
-    (t 3 (/ height 2.0) cylinder)
     (mknode
-     (doto ^Geometry cylinder
+     (doto ^Geometry (t 3 (/ height 2.0) cylinder)
 	   (.setMaterial (default-material)))))))
 
 
@@ -338,17 +332,15 @@
   ([radius height]
   (let [cone-mesh (Cylinder. 50 50 0 radius height true false)
          cone (Geometry. "cone" cone-mesh)]
-    (t 3 (/ height 2.0) cone)
     (mknode
-     (doto ^Geometry cone
+     (doto ^Geometry (t 3 (/ height 2.0) cone)
 	   (.setMaterial (default-material))))))
 
   ([radius height z-seg r-seg]
   (let [cone-mesh (Cylinder. z-seg r-seg 0 radius height true false)
          cone (Geometry. "cone" cone-mesh)]
-    (t 3 (/ height 2.0) cone)
     (mknode
-     (doto ^Geometry cone
+     (doto ^Geometry (t 3 (/ height 2.0) cone) 
 	   (.setMaterial (default-material)))))))
 
 
