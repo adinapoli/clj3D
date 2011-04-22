@@ -64,6 +64,12 @@
 (def ^{:private true} default-color (ColorRGBA/LightGray))
 
 
+(def ^{:private true} asset-manager
+     (JmeSystem/newAssetManager
+      (.getResource (.getContextClassLoader (Thread/currentThread))
+		    "com/jme3/asset/Desktop.cfg")))
+
+
 (defn- default-material []
   (doto (Material. asset-manager "Common/MatDefs/Light/Lighting.j3md")
     (.setBoolean "UseMaterialColors" true)
@@ -93,12 +99,6 @@
   [color-symbol ^Spatial object]
   (.setMaterial object (colored-material color-symbol))
   object)
-
-
-(def ^{:private true} asset-manager
-     (JmeSystem/newAssetManager
-      (.getResource (.getContextClassLoader (Thread/currentThread))
-		    "com/jme3/asset/Desktop.cfg")))
 
 
 (.registerLocator ^AssetManager asset-manager
@@ -189,13 +189,27 @@
     [? axes] (throw (IllegalArgumentException. "Invalid input for scale"))))
 
 
-(defhigh r
+(defhigh old-r
   "Rotate function. High order function."
   [axis rotation geom]
   (let [quaternion (Quaternion.)]
     (.fromAngleAxis quaternion rotation (jvector axis 1.0))
     (doto ^Node geom
-      (.setLocalRotation quaternion))))
+	  (.setLocalRotation quaternion))))
+
+(defhigh r
+  "Rotate function. High order function."
+  [axis rotation spatial]
+  (let [rotation-pivot (Node.)
+	quaternion (Quaternion.)]
+    (.attachChild rotation-pivot spatial)
+    (.setLocalTranslation rotation-pivot (Vector3f/ZERO))
+    (.fromAngleAxis quaternion rotation (jvector axis 1.0))
+    (.setLocalRotation rotation-pivot quaternion)
+    (let [world-transform (.getWorldTransform rotation-pivot)
+	  prev-transform (.getLocalTransform spatial)]
+      (doto spatial
+	(.setLocalTransform (.combineWithParent prev-transform world-transform))))))
 
 
 (defhigh skeleton

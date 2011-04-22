@@ -12,7 +12,7 @@
 	(color :brown tree)
 	(let [left-branch (r 2 teta (cylinder (* (/ 1 (/ mxl 5.0)) len) len))
 	      right-branch (r 2 (- teta) (cylinder (* (/ 1 (/ mxl 5.0)) len) len))
-	      branches (struct2 (r 2 teta) (t 3 trasl) left-branch right-branch)
+	      branches (struct2 (r 2 (- teta)) (t 3 trasl) left-branch right-branch)
 	      new-trasl (+ trasl (* len (sin (/ PI 2))))]
 	  (recur (struct2 branches tree) teta (* (/ 2 3.0) len) mxl new-trasl))))))
 
@@ -24,4 +24,4 @@
 (def initial-branch (cylinder 4 length))
 (def branch-left (r 2 teta (cylinder (* (/ 1 (/ maxl 5.0)) length) length)))
 (def branch-right (r 2 (- teta) (cylinder (* (/ 1 (/ maxl 5.0)) length) length)))
-(def tree (struct2 initial-branch (r 2 teta) (t 3 length) branch-left branch-right))
+(def tree (struct2 initial-branch (t 3 length) branch-left branch-right))

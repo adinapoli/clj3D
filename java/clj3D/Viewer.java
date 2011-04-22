@@ -269,7 +269,9 @@ public abstract class Viewer extends Application {
 		Vector3f center = ((BoundingSphere)this.rootNode.getWorldBound()).getCenter();
 		float cameraNewX = radius + radius/2;
 		float cameraNewZ = radius + radius/2;
-		float cameraOldY = this.cam.getLocation().y;
+		float cameraOldY = radius + radius/2; 
+		
+		//this.cam.getLocation().y;
 
 		this.cam.setLocation(new Vector3f(cameraNewX, cameraOldY, cameraNewZ));
 		this.cam.lookAt(center, Vector3f.UNIT_Z);
