@@ -26,11 +26,11 @@
     [matchure]
     [clj3D curry math])
   (:import
-    [com.jme3.math Vector3f Vector2f ColorRGBA Quaternion]
+    [com.jme3.math Vector3f Vector2f ColorRGBA Quaternion Transform]
     [com.jme3.asset AssetManager]
     [com.jme3.system JmeSystem]
     [com.jme3.material Material]
-    [com.jme3.scene.shape Box Line Sphere Cylinder Torus Quad]
+    [com.jme3.scene.shape Box Line Sphere Cylinder Torus Quad Dome]
     [com.jme3.scene Node Geometry Spatial Mesh Mesh$Mode VertexBuffer VertexBuffer$Type]
     [jme3tools.optimize GeometryBatchFactory]
     [com.jme3.asset.plugins FileLocator]))
@@ -110,7 +110,21 @@
   "Optimize a Spatial. Internal use."
   [spatial]
   (doto ^Node (GeometryBatchFactory/optimize spatial)
-    (.setName "structured")))
+	(.setName "structured")))
+
+
+(defhigh merge-geometries
+  [geom1 geom2]
+  (let [out-mesh (Mesh.)]
+    (GeometryBatchFactory/mergeGeometries [geom1 geom2] out-mesh)
+    (doto (Geometry. "structured" out-mesh)
+      (optimize)
+      (.setMaterial (default-material)))))
+
+
+(extend-protocol Addable
+  Geometry
+  (+ [g1 g2] (merge-geometries g1 g2)))
 
 
 (defn mknode
@@ -168,27 +182,6 @@
     (.move (jvector axes value))))
 
 
-(defhigh s
-  "Scale function. High order function.
-  Usage:
-  (s 1 0.5 (cube 1)) -> scale 50% of cube x-side
-  (s [1 2] [0.5 0.7] (cube 1)) -> scale 50% x and 70% y."
-  [axes value geom]
-  (cond-match
-
-    [java.lang.Integer axes]
-    (let [av-map (hash-map (dec axes) value)]
-      (doto ^Node geom
-      (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))))
-
-    [clojure.lang.IPersistentCollection axes]
-    (let [av-map (reduce into (map hash-map (map dec axes) value))]
-      (doto ^Node geom
-      (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))))
-
-    [? axes] (throw (IllegalArgumentException. "Invalid input for scale"))))
-
-
 (defhigh old-r
   "Rotate function. High order function."
   [axis rotation geom]
@@ -206,10 +199,39 @@
     (.setLocalTranslation rotation-pivot (Vector3f/ZERO))
     (.fromAngleAxis quaternion rotation (jvector axis 1.0))
     (.setLocalRotation rotation-pivot quaternion)
-    (let [world-transform (.getWorldTransform rotation-pivot)
-	  prev-transform (.getLocalTransform spatial)]
-      (doto spatial
+    (let [world-transform ^Transform (.getWorldTransform rotation-pivot)
+	  prev-transform ^Transform (.getLocalTransform ^Spatial spatial)]
+      (doto ^Spatial spatial
 	(.setLocalTransform (.combineWithParent prev-transform world-transform))))))
+
+
+(defhigh s
+  "Scale function. High order function.
+  Usage:
+  (s 1 0.5 (cube 1)) -> scale 50% of cube x-side
+  (s [1 2] [0.5 0.7] (cube 1)) -> scale 50% x and 70% y."
+  [axes value geom]
+  (cond-match
+
+   [-1 value]
+   (cond
+    (= 1 axes) (r 3 (/ PI 2) geom)
+    (= 2 axes) (r 1 (/ PI 2) geom)
+    (= 3 axes) (r 2 (/ PI 2) geom)
+    :else (throw (IllegalArgumentException. "Can't mirror along given axis.")))
+
+    [java.lang.Integer axes]
+    (let [av-map (hash-map (dec axes) value)]
+      (doto ^Node geom
+	    (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))))
+
+    
+    [clojure.lang.IPersistentCollection axes]
+    (let [av-map (reduce into (map hash-map (map dec axes) value))]
+      (doto ^Node geom
+	    (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))))
+
+    [? axes] (throw (IllegalArgumentException. "Invalid input for scale"))))
 
 
 (defhigh skeleton
@@ -300,7 +322,7 @@
     (t 3 (/ height 2.0) cylinder)
     (mknode
      (doto ^Geometry cylinder
-      (.setMaterial (default-material))))))
+	   (.setMaterial (default-material))))))
 
   ([radius height z-seg r-seg]
   (let [cylinder-mesh (Cylinder. z-seg r-seg radius height true)
@@ -308,7 +330,26 @@
     (t 3 (/ height 2.0) cylinder)
     (mknode
      (doto ^Geometry cylinder
-      (.setMaterial (default-material)))))))
+	   (.setMaterial (default-material)))))))
+
+
+(defn cone
+  "Returns a new cone in (0,0,0)"
+  ([radius height]
+  (let [cone-mesh (Cylinder. 50 50 0 radius height true false)
+         cone (Geometry. "cone" cone-mesh)]
+    (t 3 (/ height 2.0) cone)
+    (mknode
+     (doto ^Geometry cone
+	   (.setMaterial (default-material))))))
+
+  ([radius height z-seg r-seg]
+  (let [cone-mesh (Cylinder. z-seg r-seg 0 radius height true false)
+         cone (Geometry. "cone" cone-mesh)]
+    (t 3 (/ height 2.0) cone)
+    (mknode
+     (doto ^Geometry cone
+	   (.setMaterial (default-material)))))))
 
 
 (defn torus
@@ -385,7 +426,15 @@
   (let [quad-mesh (Quad. width height)]
     (mknode
      (doto (Geometry. "quad" quad-mesh)
-      (.setMaterial (default-material))))))
+       (.setMaterial (default-material))))))
+
+
+(defn dome
+  "A hemisphere."
+  ([radius]
+     (mknode ^Geometry
+      (doto (r 1 (/ PI 2) ^Geometry (Geometry. "dome" (Dome. 50 50 radius)))
+       (.setMaterial (default-material))))))
 
 
 (defn load-obj
@@ -395,8 +444,8 @@
    meshes into a single one and triangulate the resulting object."
   [filename]
   (let [imported-model ^Geometry (.loadModel asset-manager filename)]
-    (mknode
-     (doto imported-model
+    (mknode ^Geometry
+     (doto ^Spatial imported-model
       (.setMaterial (default-material))))))
 
 
