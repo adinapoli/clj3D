@@ -26,14 +26,16 @@
     [matchure]
     [clj3D curry math])
   (:import
-    [com.jme3.math Vector3f Vector2f ColorRGBA Quaternion Transform]
-    [com.jme3.asset AssetManager]
-    [com.jme3.system JmeSystem]
-    [com.jme3.material Material]
-    [com.jme3.scene.shape Box Line Sphere Cylinder Torus Quad Dome]
-    [com.jme3.scene Node Geometry Spatial Mesh Mesh$Mode VertexBuffer VertexBuffer$Type]
-    [jme3tools.optimize GeometryBatchFactory]
-    [com.jme3.asset.plugins FileLocator]))
+   [clj3D Utilities]
+   [java.util LinkedList]
+   [com.jme3.math Vector3f Vector2f ColorRGBA Quaternion Transform]
+   [com.jme3.asset AssetManager]
+   [com.jme3.system JmeSystem]
+   [com.jme3.material Material RenderState$FaceCullMode]
+   [com.jme3.scene.shape Box Line Sphere Cylinder Torus Quad Dome]
+   [com.jme3.scene Node Geometry Spatial Mesh Mesh$Mode VertexBuffer VertexBuffer$Type]
+   [jme3tools.optimize GeometryBatchFactory]
+   [com.jme3.asset.plugins FileLocator]))
 
 
 ;;For performance tweaking. Just ignore this.
@@ -178,7 +180,7 @@
   (t 1 2.0 (cube 1)) -> move the cube from <0,0,0> to <2.0,0,0>
   (t [1 2] [3.0 2.0] (cube 1) -> move the cube to <3.0,2.0,0>"
   [axes value geom]
-  (let [cloned (.clone geom)]
+  (let [cloned ^Spatial (.clone ^Spatial geom)]
       (doto ^Node cloned
 	    (.move (jvector axes value)))))
 
@@ -186,7 +188,7 @@
 (defhigh r
   "Rotate function. High order function."
   [axis rotation spatial]
-  (let [cloned (.clone spatial)
+  (let [cloned ^Spatial (.clone ^Spatial spatial)
 	rotation-pivot (Node.)
 	quaternion (Quaternion.)]
     (.attachChild rotation-pivot cloned)
@@ -199,27 +201,29 @@
 	(.setLocalTransform (.combineWithParent prev-transform world-transform))))))
 
 
+(defn- swap-culling
+  [node]
+  (let [children (.getChildren node)
+	queue (LinkedList.)]
+    (.addAll queue children)
+    (Utilities/traverseAndSwap queue)))
+
+
 (defhigh s
   "Scale function. High order function.
   Usage:
   (s 1 0.5 (cube 1)) -> scale 50% of cube x-side
   (s [1 2] [0.5 0.7] (cube 1)) -> scale 50% x and 70% y."
   [axes value geom]
-  (let [cloned (.clone geom)]
+  (let [cloned ^Spatial (.clone ^Spatial geom)]
     (cond-match
-
-     [-1 value]
-     (cond
-      ;;Rotation already clone the spatial, no need to clone further
-      (= 1 axes) (r 3 (/ PI 2) geom)
-      (= 2 axes) (r 1 (/ PI 2) geom)
-      (= 3 axes) (r 2 (/ PI 2) geom)
-      :else (throw (IllegalArgumentException. "Can't mirror along given axis.")))
 
      [java.lang.Integer axes]
      (let [av-map (hash-map (dec axes) value)]
        (doto ^Node cloned
-	     (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))))
+	     (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))
+	     (when (neg? value)
+	       (swap-culling cloned))))
 
     
      [clojure.lang.IPersistentCollection axes]
@@ -425,7 +429,7 @@
   "A hemisphere."
   ([radius]
      (mknode ^Geometry
-      (doto (r 1 (/ PI 2) ^Geometry (Geometry. "dome" (Dome. 50 50 radius)))
+      (doto ^Spatial (r 1 (/ PI 2) ^Geometry (Geometry. "dome" (Dome. 50 50 radius)))
        (.setMaterial (default-material))))))
 
 
@@ -466,11 +470,11 @@
      (skeleton 0 result))
 
    [:1 dim]
-   (doto (struct2 (map #(line %1 %2) (butlast vertices) (next vertices)))
+   (doto ^Node (struct2 (map #(line %1 %2) (butlast vertices) (next vertices)))
      (.setMaterial (unlit-material)))
    
    [:2 dim]
-   (doto (apply trianglestripe vertices)
+   (doto ^Node (apply trianglestripe vertices)
      (.setMaterial (default-material)))
    
    [? dim] (throw (IllegalArgumentException. (str "mkpol: " dim " is not a valid dimension.")))))
