@@ -6,8 +6,12 @@ import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.VertexBuffer.Type;
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 
 
 public class Utilities {
@@ -33,17 +37,52 @@ public class Utilities {
 
 	}
 	
-	public static void traverseAndSwap(Queue<Spatial> queue){
+	
+	public static void mirrorAlong(int axis, Geometry geometry){
+
+    		int i = axis-1;
+    		Mesh oldMesh = geometry.getMesh().deepClone();
+
+    		FloatBuffer oldPoints = (FloatBuffer)oldMesh.getBuffer(Type.Position).getData();
+    		ShortBuffer oldIndexes = (ShortBuffer)oldMesh.getBuffer(Type.Index).getData();
+
+    		while(i < oldPoints.capacity()){
+    			float oldValue = oldPoints.get(i);
+    			oldPoints.put(i, -oldValue);
+    			i+=3;
+    		}
+
+
+    		//Invert wise order
+    		i = 0;
+    		while(i < oldIndexes.capacity()){
+    			short oldValue = oldIndexes.get(i+2);
+    			oldIndexes.put(i+2, oldIndexes.get(i+1));
+    			oldIndexes.put(i+1, oldValue);
+    			i+=3;
+    		}
+
+
+
+    		oldMesh.setBuffer(Type.Position, 3, oldPoints);
+    		oldMesh.setBuffer(Type.Index, 1, oldIndexes);
+    		geometry.setMesh(oldMesh);
+    		geometry.updateModelBound();
+
+    	}
+	
+	
+	public static void traverseAndMirror(int axis, Queue<Spatial> queue){
 		
 		if(!queue.isEmpty()){
 			Spatial node = queue.remove();
 			
 			if(node instanceof Geometry)
-				swapCulling((Geometry)node);
+				mirrorAlong(axis, (Geometry)node);
 			else
 				queue.addAll(((Node)node).getChildren());
 				
-			traverseAndSwap(queue);
+			traverseAndMirror(axis, queue);
 		}	
 	}
 }

@@ -201,12 +201,12 @@
 	(.setLocalTransform (.combineWithParent prev-transform world-transform))))))
 
 
-(defn- swap-culling
-  [node]
+(defn- mirror
+  [axis node]
   (let [children (.getChildren node)
 	queue (LinkedList.)]
     (.addAll queue children)
-    (Utilities/traverseAndSwap queue)))
+    (Utilities/traverseAndMirror axis queue)))
 
 
 (defhigh s
@@ -218,12 +218,16 @@
   (let [cloned ^Spatial (.clone ^Spatial geom)]
     (cond-match
 
+     [-1 value]
+     (do
+       (mirror axes cloned)
+       cloned)
+     
+
      [java.lang.Integer axes]
      (let [av-map (hash-map (dec axes) value)]
        (doto ^Node cloned
-	     (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))
-	     (when (neg? value)
-	       (swap-culling cloned))))
+	     (.scale (get av-map 0 1.0) (get av-map 1 1.0) (get av-map 2 1.0))))
 
     
      [clojure.lang.IPersistentCollection axes]

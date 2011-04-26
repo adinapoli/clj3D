@@ -54,17 +54,5 @@
 (def tempio-second-half (s 1 -1 tempio-first-half))
 (def tempio (struct2 (t 3 1) puntale tempio-first-half tempio-second-half))
 
-
-# Disegno la base del tempio.
-base_tempio = CUBOID([28,28,1])
-sfrido1 = COMP([T(1)(8), T(2)(18)])(CUBOID([10,10,1]))
-sfrido2 = COMP([T(1)(18), T(2)(8)])(CUBOID([10,20,1]))
-base_tempio = DIFFERENCE([base_tempio, sfrido1, sfrido2])
-# Specchio e ruoto
-base_tempio_mirror = S(1)(-1)(base_tempio)
-base_tempio_half = STRUCT([base_tempio, base_tempio_mirror])
-base_tempio = STRUCT([base_tempio_half, S(2)(-1), base_tempio_half])
-
-
-tempio_con_base = STRUCT([tempio, base_tempio])
-VIEW(tempio_con_base)
+(def base-tempio (t [1 2] [-20 -20] (cuboid 40 40 1)))
+(def tempio (struct2 tempio base-tempio))
