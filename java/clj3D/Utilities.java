@@ -45,10 +45,15 @@ public class Utilities {
 
     		FloatBuffer oldPoints = (FloatBuffer)oldMesh.getBuffer(Type.Position).getData();
     		ShortBuffer oldIndexes = (ShortBuffer)oldMesh.getBuffer(Type.Index).getData();
+    		FloatBuffer oldNormals = (FloatBuffer)oldMesh.getBuffer(Type.Normal).getData();
 
-    		while(i < oldPoints.capacity()){
-    			float oldValue = oldPoints.get(i);
-    			oldPoints.put(i, -oldValue);
+
+    		//Mirror along given axis, invert normals also
+            while(i < oldPoints.capacity()){
+    			float oldPoint = oldPoints.get(i);
+    			float oldNormal = oldNormals.get(i);
+    			oldPoints.put(i, -oldPoint);
+    			oldNormals.put(i, -oldNormal);
     			i+=3;
     		}
 
@@ -63,8 +68,8 @@ public class Utilities {
     		}
 
 
-
     		oldMesh.setBuffer(Type.Position, 3, oldPoints);
+    		oldMesh.setBuffer(Type.Normal, 3, oldNormals);
     		oldMesh.setBuffer(Type.Index, 1, oldIndexes);
     		geometry.setMesh(oldMesh);
     		geometry.updateModelBound();
