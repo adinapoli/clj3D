@@ -27,12 +27,12 @@ CAD Group at the Universities "La Sapienza" and "Roma Tre".\
 No external dependencies, no modules to install. Just a single jar:
 ::
 
-[org.clojars.charles-stain/clj3d "0.0.3"]
+[org.clojars.charles-stain/clj3d "0.0.4"]
 
 Import it into a Leiningen project and you are ready to go. Displaying something is dead-easy:
 ::
 
-    (use '(clj3D fenvs viewer) :reload)
+    (use '(clj3D math fl fenvs viewer) :reload)
     (view (cube 1))
 
 ..Clj3D is batteries included
