@@ -1,4 +1,4 @@
-(defproject clj3D "0.0.3"
+(defproject clj3D "0.0.4"
   :description "The first Clojure 3D Library"
   
   :dependencies [[org.clojure/clojure "1.2.0"]
@@ -15,8 +15,7 @@
                  [org.clojars.charles-stain/xmlpull-xpp3 "1.1.4c"]
                  [incanter/incanter-core "1.2.3"]
                  [incanter/incanter-charts "1.2.3"]
-                 [matchure "0.10.1"]
-		 [potemkin "0.1.0"]]
+                 [matchure "0.10.1"]]
 
   :dev-dependencies [[swank-clojure "1.2.0-SNAPSHOT"]]
   :source-path "src"

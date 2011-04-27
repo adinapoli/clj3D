@@ -32,6 +32,7 @@
    [com.jme3.asset AssetManager]
    [com.jme3.system JmeSystem]
    [com.jme3.material Material RenderState$FaceCullMode]
+   [com.jme3.texture Texture]
    [com.jme3.scene.shape Box Line Sphere Cylinder Torus Quad Dome]
    [com.jme3.scene Node Geometry Spatial Mesh Mesh$Mode VertexBuffer VertexBuffer$Type]
    [jme3tools.optimize GeometryBatchFactory]
@@ -86,6 +87,11 @@
     (.setColor "Color"  default-color)))
 
 
+(defn- textured-material [texture]
+  (doto (Material. asset-manager "Common/MatDefs/Misc/Unshaded.j3md")
+    (.setTexture "ColorMap"  texture)))
+
+
 (defn- colored-material
   [color-keyword]
   (doto (Material. asset-manager "Common/MatDefs/Light/Lighting.j3md")
@@ -103,8 +109,15 @@
   object)
 
 
+;;For custom Obj files
 (.registerLocator ^AssetManager asset-manager
 		  (str (. System getProperty "user.dir") "/models")
+		  "com.jme3.asset.plugins.FileLocator")
+
+
+;;For user textures
+(.registerLocator ^AssetManager asset-manager
+		  (str (. System getProperty "user.dir") "/textures")
 		  "com.jme3.asset.plugins.FileLocator")
 
 
@@ -443,10 +456,20 @@
    example, in Maya, before exporting a model Combine the
    meshes into a single one and triangulate the resulting object."
   [filename]
-  (let [imported-model ^Geometry (.loadModel asset-manager filename)]
-    (mknode ^Geometry
-     (doto ^Spatial imported-model
-      (.setMaterial (default-material))))))
+  (let [imported-model ^Geometry (.loadModel ^AssetManager asset-manager filename)]
+    (mknode ^Node
+     (doto ^Geometry imported-model
+	   (.setMaterial (default-material))))))
+
+
+(defhigh texture
+  "Apply a texture to a given spatial."
+  [filename spatial]
+  (let [tex ^Texture (.loadTexture ^AssetManager asset-manager filename)
+	material ^Material (textured-material tex)]
+    (doto ^Node spatial
+      (.setMaterial material))))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
