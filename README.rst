@@ -9,6 +9,36 @@ aims to be the Clojure standard in 3D and 2D rendering.
 .. image:: https://github.com/CharlesStain/clj3D/raw/makai/imgs/leonard.jpg
 .. image:: https://github.com/CharlesStain/clj3D/raw/makai/imgs/skyscraper.jpg
 
+
+Read Carefully!!
+================
+
+I'm not going to update the library, at least for the moment. By the way, if you
+are interested in contributing, you should be sure to make che library compatible for
+the coming 1.3 stable version of Clojure. In order to accomplish that, we should follow
+the instruction given us from the Clojure Google Group, that I'll report here:
+
+  - *Try migrating your lib to 1.3* 
+      - Create a 1.3 branch 
+      - Remove earmuffs around any non-rebound vars 
+      - Add earmuffs to any vars that are rebound using thread-level binding 
+      - Add ^:dynamic to these vars 
+      - If you rely on the built in Numerics, check to see if the new 
+      changes<http://dev.clojure.org/display/doc/Documentation+for+1.3+Numerics>in 1.3 affect you. 
+   - *Do some house cleaning* 
+      - If you are no longer maintaining this library, simply note so at the 
+      top of your Readme. If the reason is that a better alternative has spring 
+      up, link to it. 
+      - Take a look at your dev dependencies and determine if any of them 
+      should remain in light of the ability to globally install leiningen plugins. 
+      *If you have swank-clojure as a dependency, please remove it*: this has been the source of numerous issues.
+      
+It seems to be a lot of work to do, but I have no time. I report this disclaimer here hoping that someone
+soon or later will contribute.
+Thanks,
+Alfredo
+
+
 **The second screencast is out! Watch it** `here <http://www.youtube.com/watch?v=Xg2gZpWU6AE>`_
 
 **The first screencast is out! Watch it** `here <http://www.youtube.com/watch?v=_fLgBzRdddU>`_
