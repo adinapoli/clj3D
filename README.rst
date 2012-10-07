@@ -4,10 +4,10 @@ Clj3D - Visual prototyping for the masses
 Clj3D is a Clojure graphic library for manipulating 3D and 2D objects. It
 aims to be the Clojure standard in 3D and 2D rendering. 
 
-.. image:: https://github.com/CharlesStain/clj3D/raw/makai/imgs/screen2.jpg
-.. image:: https://github.com/CharlesStain/clj3D/raw/makai/imgs/screen4.jpg
-.. image:: https://github.com/CharlesStain/clj3D/raw/makai/imgs/leonard.jpg
-.. image:: https://github.com/CharlesStain/clj3D/raw/makai/imgs/skyscraper.jpg
+.. image:: https://github.com/adinapoli/clj3D/raw/makai/imgs/screen2.jpg
+.. image:: https://github.com/adinapoli/clj3D/raw/makai/imgs/screen4.jpg
+.. image:: https://github.com/adinapoli/clj3D/raw/makai/imgs/leonard.jpg
+.. image:: https://github.com/adinapoli/clj3D/raw/makai/imgs/skyscraper.jpg
 
 
 Read Carefully!!
